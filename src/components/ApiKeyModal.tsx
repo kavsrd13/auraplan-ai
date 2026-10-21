@@ -30,8 +30,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = inputValue.trim();
-    if (trimmed && !trimmed.startsWith('AIza')) {
-      setError('Gemini API keys typically begin with "AIza". Please check your key.');
+    if (!trimmed) {
+      setError('Please enter a valid API key or token.');
       return;
     }
     setError(null);
