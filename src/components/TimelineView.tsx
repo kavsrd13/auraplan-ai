@@ -14,6 +14,7 @@ import {
   Clock,
   Check,
   RotateCcw,
+  Search,
 } from 'lucide-react';
 import type { TimelineMilestone, TaskStatus } from '@/types/event';
 import { Badge } from './ui/Badge';
@@ -44,6 +45,7 @@ const TimelineViewComponent: React.FC<TimelineViewProps> = ({
   onUpdateMilestone,
 }) => {
   const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Memoize counts to avoid recomputing on unrelated re-renders
   const totalCount = timeline.length;
@@ -68,11 +70,18 @@ const TimelineViewComponent: React.FC<TimelineViewProps> = ({
     [totalCount, completedCount]
   );
 
-  // Memoize filtered items
+  // Memoize filtered items with status and keyword matching
   const filteredTimeline = useMemo(() => {
-    if (filterStatus === 'all') return timeline;
-    return timeline.filter((item) => item.status === filterStatus);
-  }, [timeline, filterStatus]);
+    return timeline.filter((item) => {
+      const matchesStatus = filterStatus === 'all' || item.status === filterStatus;
+      const query = searchQuery.trim().toLowerCase();
+      const matchesQuery =
+        !query ||
+        item.title.toLowerCase().includes(query) ||
+        item.description.toLowerCase().includes(query);
+      return matchesStatus && matchesQuery;
+    });
+  }, [timeline, filterStatus, searchQuery]);
 
   const daysToEvent = useMemo(() => calculateDaysUntil(eventDate), [eventDate]);
 
@@ -130,9 +139,9 @@ const TimelineViewComponent: React.FC<TimelineViewProps> = ({
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 p-1 bg-surface-100 rounded-xl border border-surface-200">
+      {/* Filter Tabs & Search */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 p-1 bg-surface-100 rounded-xl border border-surface-200 overflow-x-auto">
           <button
             type="button"
             onClick={() => setFilterStatus('all')}
@@ -179,8 +188,21 @@ const TimelineViewComponent: React.FC<TimelineViewProps> = ({
           </button>
         </div>
 
-        <div className="text-xs text-surface-500">
-          Showing {filteredTimeline.length} of {totalCount} items
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 sm:w-60">
+            <Search className="w-3.5 h-3.5 text-surface-400 absolute left-3 top-2.5" aria-hidden="true" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search milestones..."
+              aria-label="Filter milestones by search keyword"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-surface-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-aura-500"
+            />
+          </div>
+          <div className="text-xs text-surface-500 whitespace-nowrap">
+            Showing {filteredTimeline.length} of {totalCount}
+          </div>
         </div>
       </div>
 

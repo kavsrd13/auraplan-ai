@@ -424,7 +424,7 @@ Provide helpful, specific, concise advice. If suggesting modifications to budget
   try {
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash-lite',
+      model: AI_CONFIG.PRIMARY_MODEL,
       contents: prompt,
     });
 

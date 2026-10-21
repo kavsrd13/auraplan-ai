@@ -185,3 +185,19 @@ export function removePlanFromStorage(planId: string): void {
     );
   }
 }
+
+/**
+ * Clears all saved event plans from `localStorage`.
+ *
+ * @example
+ * ```ts
+ * clearPlansFromStorage();
+ * ```
+ */
+export function clearPlansFromStorage(): void {
+  try {
+    window.localStorage.removeItem(PLANS_STORAGE_KEY);
+  } catch (error: unknown) {
+    console.warn('[clearPlansFromStorage] Failed to clear saved plans:', error);
+  }
+}

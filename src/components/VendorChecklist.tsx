@@ -14,6 +14,7 @@ import {
   Lightbulb,
   ChevronDown,
   ChevronUp,
+  Search,
 } from 'lucide-react';
 import type { VendorItem, VendorStatus } from '@/types/event';
 import { Badge } from './ui/Badge';
@@ -50,6 +51,8 @@ const VendorChecklistComponent: React.FC<VendorChecklistProps> = ({
   const [expandedVendorId, setExpandedVendorId] = useState<string | null>(
     vendors[0]?.id || null
   );
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filterStatus, setFilterStatus] = useState<VendorStatus | 'all'>('all');
 
   const toggleExpand = useCallback((id: string): void => {
     setExpandedVendorId((prev) => (prev === id ? null : id));
@@ -67,6 +70,19 @@ const VendorChecklistComponent: React.FC<VendorChecklistProps> = ({
       ).length,
     [vendors]
   );
+
+  const filteredVendors = useMemo(() => {
+    return vendors.filter((v) => {
+      const matchesStatus = filterStatus === 'all' || v.status === filterStatus;
+      const query = searchQuery.trim().toLowerCase();
+      const matchesQuery =
+        !query ||
+        v.vendorName.toLowerCase().includes(query) ||
+        v.category.toLowerCase().includes(query) ||
+        v.notes.toLowerCase().includes(query);
+      return matchesStatus && matchesQuery;
+    });
+  }, [vendors, filterStatus, searchQuery]);
 
   const getStatusBadge = useCallback((status: VendorStatus) => {
     switch (status) {
@@ -114,9 +130,93 @@ const VendorChecklistComponent: React.FC<VendorChecklistProps> = ({
         </div>
       </div>
 
+      {/* Filter & Search Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 p-1 bg-surface-100 rounded-xl border border-surface-200 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setFilterStatus('all')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
+              filterStatus === 'all'
+                ? 'bg-white text-surface-900 shadow-xs'
+                : 'text-surface-600 hover:text-surface-900'
+            }`}
+          >
+            All ({vendors.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterStatus(VENDOR_STATUS.NOT_CONTACTED)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
+              filterStatus === VENDOR_STATUS.NOT_CONTACTED
+                ? 'bg-white text-surface-900 shadow-xs'
+                : 'text-surface-600 hover:text-surface-900'
+            }`}
+          >
+            Not Contacted
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterStatus(VENDOR_STATUS.CONTACTED)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
+              filterStatus === VENDOR_STATUS.CONTACTED
+                ? 'bg-white text-surface-900 shadow-xs'
+                : 'text-surface-600 hover:text-surface-900'
+            }`}
+          >
+            Contacted
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterStatus(VENDOR_STATUS.BOOKED)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
+              filterStatus === VENDOR_STATUS.BOOKED
+                ? 'bg-white text-surface-900 shadow-xs'
+                : 'text-surface-600 hover:text-surface-900'
+            }`}
+          >
+            Booked
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterStatus(VENDOR_STATUS.CONFIRMED)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
+              filterStatus === VENDOR_STATUS.CONFIRMED
+                ? 'bg-white text-surface-900 shadow-xs'
+                : 'text-surface-600 hover:text-surface-900'
+            }`}
+          >
+            Confirmed
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 sm:w-60">
+            <Search className="w-3.5 h-3.5 text-surface-400 absolute left-3 top-2.5" aria-hidden="true" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search vendors..."
+              aria-label="Filter vendors by search keyword"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-surface-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-aura-500"
+            />
+          </div>
+          <div className="text-xs text-surface-500 whitespace-nowrap">
+            Showing {filteredVendors.length} of {vendors.length}
+          </div>
+        </div>
+      </div>
+
       {/* Vendors List */}
       <div className="space-y-4">
-        {vendors.map((vendor) => {
+        {filteredVendors.length === 0 ? (
+          <div className="p-8 text-center bg-white rounded-2xl border border-surface-200">
+            <Store className="w-8 h-8 text-surface-400 mx-auto mb-2" />
+            <p className="text-sm font-semibold text-surface-700">No vendors match your search.</p>
+          </div>
+        ) : (
+          filteredVendors.map((vendor) => {
           const isExpanded = expandedVendorId === vendor.id;
 
           return (
@@ -264,7 +364,8 @@ const VendorChecklistComponent: React.FC<VendorChecklistProps> = ({
               )}
             </div>
           );
-        })}
+        })
+      )}
       </div>
     </div>
   );

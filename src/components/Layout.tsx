@@ -84,8 +84,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({
               </div>
             )}
 
-            {/* Global Actions */}
-            <div className="flex items-center gap-2.5">
+            {/* Global Actions Navigation */}
+            <nav aria-label="Global application actions" className="flex items-center gap-2.5">
               {view === 'dashboard' && (
                 <button
                   type="button"
@@ -126,7 +126,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({
                   <CheckCircle2 className="w-3 h-3 text-emerald-600" aria-hidden="true" />
                 )}
               </button>
-            </div>
+            </nav>
           </div>
         </div>
       </header>

@@ -82,7 +82,7 @@ graph TD
     
     EventForm --> AIService["aiService.ts (@google/genai)"]
     AIChat --> AIService
-    AIService --> GeminiAPI["Gemini 2.0 Flash (Structured JSON Schema)"]
+    AIService --> GeminiAPI["Gemini 3.5 Flash Lite (Structured JSON Schema)"]
     AIService --> Cache["In-Memory Plan Cache (Input Hash)"]
     AIService --> OfflineFallback["demoData.ts (Fallback Engine)"]
     
@@ -263,7 +263,7 @@ npm run test:watch
 npm run test:coverage
 ```
 
-### Test Coverage Highlights
+### Test Coverage Highlights (11 Suites / 83+ Tests)
 1. `src/__tests__/calculations.test.ts`
    * Percentage budget allocations for Wedding, Birthday, and Community events.
    * Total allocated vs. actual spend calculations and budget utilization percentages.
@@ -282,6 +282,21 @@ npm run test:coverage
    * Form rendering with explicit labels, `aria-required`, and error states.
    * "Load Demo Event" execution and seamless dashboard tab switching (`role="tablist"`).
    * API Key configuration modal rendering and dismissal.
+5. `src/__tests__/ErrorBoundary.test.tsx`
+   * Graceful component fault catching and accessible `role="alert"` fallback UI.
+   * Reset lifecycle and error stack inspection.
+6. `src/__tests__/useEventPlan.test.ts`
+   * Pure state machine reducer transitions across all action types.
+7. `src/__tests__/useBudgetEditor.test.ts`
+   * Custom hook inline edit lifecycle, field setters, and negative value clamping.
+8. `src/__tests__/useFormValidation.test.ts`
+   * Form validation lifecycle, touched tracking, quick presets, and WCAG error focus.
+9. `src/__tests__/useLocalStorage.test.ts`
+   * Multi-plan serialization, retrieval, update, clear, and quota exceeded handling.
+10. `src/__tests__/ExportPanel.test.tsx`
+    * 1-click Markdown export generation, raw JSON schema download, and print view.
+11. `src/__tests__/constants.test.ts`
+    * Centralized enums, threshold bounds, storage keys, and limits validation.
 
 ---
 

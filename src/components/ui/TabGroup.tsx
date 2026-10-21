@@ -81,47 +81,49 @@ const TabGroupComponent: React.FC<TabGroupProps> = ({
   );
 
   return (
-    <div
-      ref={tabListRef}
-      role="tablist"
-      aria-label={ariaLabel}
-      className="flex flex-wrap gap-2 border-b border-surface-200 pb-2 mb-6"
-    >
-      {tabs.map((tab, index) => {
-        const isSelected = activeTab === tab.id;
-        return (
-          <button
-            key={tab.id}
-            id={`tab-${tab.id}`}
-            role="tab"
-            aria-selected={isSelected}
-            aria-controls={`panel-${tab.id}`}
-            tabIndex={isSelected ? 0 : -1}
-            onClick={() => onTabChange(tab.id)}
-            onKeyDown={(e) => handleKeyDown(e, index)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 focus:ring-offset-1 ${
-              isSelected
-                ? 'bg-aura-600 text-white shadow-sm'
-                : 'text-surface-700 hover:text-surface-900 hover:bg-surface-100'
-            }`}
-          >
-            {tab.icon && <span aria-hidden="true">{tab.icon}</span>}
-            <span>{tab.label}</span>
-            {tab.badge !== undefined && (
-              <span
-                className={`ml-1 text-xs px-2 py-0.5 rounded-full font-bold ${
-                  isSelected
-                    ? 'bg-aura-700 text-white'
-                    : 'bg-surface-200 text-surface-800'
-                }`}
-              >
-                {tab.badge}
-              </span>
-            )}
-          </button>
-        );
-      })}
-    </div>
+    <nav aria-label={ariaLabel}>
+      <div
+        ref={tabListRef}
+        role="tablist"
+        aria-label={ariaLabel}
+        className="flex flex-wrap gap-2 border-b border-surface-200 pb-2 mb-6"
+      >
+        {tabs.map((tab, index) => {
+          const isSelected = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              id={`tab-${tab.id}`}
+              role="tab"
+              aria-selected={isSelected}
+              aria-controls={`panel-${tab.id}`}
+              tabIndex={isSelected ? 0 : -1}
+              onClick={() => onTabChange(tab.id)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 focus:ring-offset-1 ${
+                isSelected
+                  ? 'bg-aura-600 text-white shadow-sm'
+                  : 'text-surface-700 hover:text-surface-900 hover:bg-surface-100'
+              }`}
+            >
+              {tab.icon && <span aria-hidden="true">{tab.icon}</span>}
+              <span>{tab.label}</span>
+              {tab.badge !== undefined && (
+                <span
+                  className={`ml-1 text-xs px-2 py-0.5 rounded-full font-bold ${
+                    isSelected
+                      ? 'bg-aura-700 text-white'
+                      : 'bg-surface-200 text-surface-800'
+                  }`}
+                >
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
   );
 };
 
