@@ -1,17 +1,28 @@
 /**
- * Accessibility preferences toolbar.
- * Provides controls for high contrast mode, reduced motion, and text scaling,
- * ensuring WCAG 2.1 AA compliance and empowering users with assistive preferences.
+ * Accessibility preferences toolbar conforming to WCAG 2.1 AA specifications.
+ * Provides interactive toggles for high contrast mode and dynamic font scaling,
+ * allowing users with low vision or cognitive differences to customize readability.
+ * Memoized with React.memo.
  *
  * @module AccessibilityToolbar
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Eye, Type, Sparkles } from 'lucide-react';
 
-export const AccessibilityToolbar: React.FC = () => {
-  const [highContrast, setHighContrast] = useState(false);
-  const [textSize, setTextSize] = useState<'normal' | 'large' | 'larger'>('normal');
+/**
+ * Text size scaling options for accessibility preferences.
+ */
+export type TextScaleOption = 'normal' | 'large' | 'larger';
+
+/**
+ * Accessible toolbar component rendering controls for visual adjustments.
+ *
+ * @returns Accessibility settings banner landmark
+ */
+const AccessibilityToolbarComponent: React.FC = () => {
+  const [highContrast, setHighContrast] = useState<boolean>(false);
+  const [textSize, setTextSize] = useState<TextScaleOption>('normal');
 
   useEffect(() => {
     const root = document.documentElement;
@@ -32,11 +43,17 @@ export const AccessibilityToolbar: React.FC = () => {
     }
   }, [textSize]);
 
-  const cycleTextSize = () => {
-    if (textSize === 'normal') setTextSize('large');
-    else if (textSize === 'large') setTextSize('larger');
-    else setTextSize('normal');
-  };
+  const toggleContrast = useCallback((): void => {
+    setHighContrast((prev) => !prev);
+  }, []);
+
+  const cycleTextSize = useCallback((): void => {
+    setTextSize((prev) => {
+      if (prev === 'normal') return 'large';
+      if (prev === 'large') return 'larger';
+      return 'normal';
+    });
+  }, []);
 
   return (
     <aside
@@ -50,7 +67,8 @@ export const AccessibilityToolbar: React.FC = () => {
 
       <div className="flex items-center gap-3">
         <button
-          onClick={() => setHighContrast(!highContrast)}
+          type="button"
+          onClick={toggleContrast}
           aria-pressed={highContrast}
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-aura-400 ${
             highContrast ? 'bg-aura-500 text-white font-bold' : 'bg-surface-800 hover:bg-surface-700 text-surface-200'
@@ -62,6 +80,7 @@ export const AccessibilityToolbar: React.FC = () => {
         </button>
 
         <button
+          type="button"
           onClick={cycleTextSize}
           aria-label={`Current text scale: ${textSize}. Click to change.`}
           className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-800 hover:bg-surface-700 text-surface-200 transition-colors focus:outline-none focus:ring-2 focus:ring-aura-400"
@@ -74,3 +93,8 @@ export const AccessibilityToolbar: React.FC = () => {
     </aside>
   );
 };
+
+AccessibilityToolbarComponent.displayName = 'AccessibilityToolbar';
+
+export const AccessibilityToolbar = React.memo(AccessibilityToolbarComponent);
+export default AccessibilityToolbar;

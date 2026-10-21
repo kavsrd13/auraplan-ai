@@ -1,12 +1,13 @@
 /**
  * Dynamic Budget Breakdown component.
  * Categorized allocations with estimated vs actual spend tracking,
- * visual progress bars, over-budget alerts, and interactive spend adjustments.
+ * visual progress bars, over-budget alerts, and interactive inline spend adjustments.
+ * Optimized with useMemo, useBudgetEditor custom hook, and React.memo.
  *
  * @module BudgetTracker
  */
 
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   DollarSign,
   AlertTriangle,
@@ -21,48 +22,70 @@ import type { BudgetCategory } from '@/types/event';
 import { ProgressBar } from './ui/ProgressBar';
 import { Badge } from './ui/Badge';
 import { formatCurrency, calculateBudgetUtilization } from '@/utils/calculations';
+import { useBudgetEditor } from '@/hooks/useBudgetEditor';
 
-interface BudgetTrackerProps {
+/**
+ * Props for the BudgetTracker component.
+ */
+export interface BudgetTrackerProps {
+  /** Total event budget cap defined by user */
   totalBudget: number;
+  /** Array of categorized budget items */
   budget: BudgetCategory[];
+  /** Handler to persist updates to an individual budget category */
   onUpdateCategory: (index: number, updates: Partial<BudgetCategory>) => void;
 }
 
-export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
+/**
+ * Interactive BudgetTracker component.
+ *
+ * @param props - Component properties
+ * @returns Dashboard section rendering budget metrics, progress bars, and inline editing
+ */
+const BudgetTrackerComponent: React.FC<BudgetTrackerProps> = ({
   totalBudget,
   budget,
   onUpdateCategory,
 }) => {
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editActual, setEditActual] = useState<number>(0);
-  const [editAllocated, setEditAllocated] = useState<number>(0);
-  const [editNotes, setEditNotes] = useState<string>('');
+  // Extract editor state and actions to dedicated custom hook
+  const {
+    editingIndex,
+    editActual,
+    editAllocated,
+    editNotes,
+    setEditActual,
+    setEditAllocated,
+    setEditNotes,
+    handleStartEdit,
+    handleSaveEdit,
+    handleCancelEdit,
+  } = useBudgetEditor(onUpdateCategory);
 
-  const totalAllocated = budget.reduce((sum, item) => sum + item.allocated, 0);
-  const totalActual = budget.reduce((sum, item) => sum + item.actual, 0);
-  const remainingBudget = totalBudget - totalActual;
-  const overallUtilization = calculateBudgetUtilization(totalBudget, totalActual);
-  const isTotalOver = totalActual > totalBudget;
+  // Memoize aggregated metrics to avoid redundant recalculations on unrelated renders
+  const totalAllocated = useMemo(
+    () => budget.reduce((sum, item) => sum + item.allocated, 0),
+    [budget]
+  );
 
-  const handleStartEdit = (index: number, item: BudgetCategory) => {
-    setEditingIndex(index);
-    setEditActual(item.actual);
-    setEditAllocated(item.allocated);
-    setEditNotes(item.notes);
-  };
+  const totalActual = useMemo(
+    () => budget.reduce((sum, item) => sum + item.actual, 0),
+    [budget]
+  );
 
-  const handleSaveEdit = (index: number) => {
-    onUpdateCategory(index, {
-      actual: Math.max(0, editActual),
-      allocated: Math.max(0, editAllocated),
-      notes: editNotes,
-    });
-    setEditingIndex(null);
-  };
+  const remainingBudget = useMemo(
+    () => totalBudget - totalActual,
+    [totalBudget, totalActual]
+  );
 
-  const handleCancelEdit = () => {
-    setEditingIndex(null);
-  };
+  const overallUtilization = useMemo(
+    () => calculateBudgetUtilization(totalBudget, totalActual),
+    [totalBudget, totalActual]
+  );
+
+  const isTotalOver = useMemo(
+    () => totalActual > totalBudget,
+    [totalActual, totalBudget]
+  );
 
   return (
     <div className="space-y-6">
@@ -193,6 +216,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                       <span className="font-bold text-sm text-surface-900">{item.category}</span>
                       <div className="flex items-center gap-2">
                         <button
+                          type="button"
                           onClick={() => handleSaveEdit(index)}
                           aria-label={`Save edits for ${item.category}`}
                           className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-white bg-aura-600 hover:bg-aura-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-aura-500"
@@ -201,6 +225,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                           <span>Save</span>
                         </button>
                         <button
+                          type="button"
                           onClick={handleCancelEdit}
                           aria-label="Cancel editing"
                           className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-surface-600 hover:bg-surface-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-surface-400"
@@ -284,6 +309,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                           </span>
                         </div>
                         <button
+                          type="button"
                           onClick={() => handleStartEdit(index, item)}
                           aria-label={`Edit ${item.category} budget values`}
                           className="p-2 text-surface-400 hover:text-aura-600 hover:bg-aura-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-aura-500"
@@ -323,3 +349,8 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
     </div>
   );
 };
+
+BudgetTrackerComponent.displayName = 'BudgetTracker';
+
+export const BudgetTracker = React.memo(BudgetTrackerComponent);
+export default BudgetTracker;

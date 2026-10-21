@@ -1,19 +1,31 @@
 /**
  * Accessible skip navigation link.
  * Allows keyboard and screen reader users to bypass top navigation
- * directly to the main content area.
+ * directly to the main landmark content area.
+ * Meets WCAG 2.1 AA criterion 2.4.1 (Bypass Blocks).
  *
  * @module SkipLink
  */
 
 import React from 'react';
 
-interface SkipLinkProps {
+/**
+ * Props for the SkipLink component.
+ */
+export interface SkipLinkProps {
+  /** Target HTML ID of the primary content landmark (default: 'main-content') */
   targetId?: string;
+  /** Accessible label displayed when link receives keyboard focus */
   label?: string;
 }
 
-export const SkipLink: React.FC<SkipLinkProps> = ({
+/**
+ * SkipLink component that remains visually hidden until focused via Tab.
+ *
+ * @param props - Component properties
+ * @returns Skip anchor element
+ */
+const SkipLinkComponent: React.FC<SkipLinkProps> = ({
   targetId = 'main-content',
   label = 'Skip to main content',
 }) => {
@@ -26,3 +38,8 @@ export const SkipLink: React.FC<SkipLinkProps> = ({
     </a>
   );
 };
+
+SkipLinkComponent.displayName = 'SkipLink';
+
+export const SkipLink = React.memo(SkipLinkComponent);
+export default SkipLink;

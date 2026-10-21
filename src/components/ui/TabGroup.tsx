@@ -1,27 +1,49 @@
 /**
  * Accessible TabGroup component following WAI-ARIA Tabs pattern.
- * Supports ArrowLeft, ArrowRight, Home, and End keyboard navigation.
+ * Supports ArrowLeft, ArrowRight, Home, and End keyboard navigation,
+ * aria-selected, aria-controls, and proper tabIndex management.
+ * Optimized with React.memo.
  *
  * @module TabGroup
  */
 
-import React, { useRef } from 'react';
+import React, { useRef, useCallback } from 'react';
 
+/**
+ * Definition of an individual navigation tab item.
+ */
 export interface TabItem {
+  /** Unique identifier for the tab */
   id: string;
+  /** Human-readable tab title */
   label: string;
+  /** Optional SVG icon element */
   icon?: React.ReactNode;
+  /** Optional badge count or status string */
   badge?: number | string;
 }
 
-interface TabGroupProps {
+/**
+ * Props for the TabGroup component.
+ */
+export interface TabGroupProps {
+  /** Array of tab definitions */
   tabs: TabItem[];
+  /** Identifier of the currently active tab */
   activeTab: string;
+  /** Callback fired when a tab is selected */
   onTabChange: (tabId: string) => void;
+  /** Accessible label describing the navigation group */
   ariaLabel: string;
 }
 
-export const TabGroup: React.FC<TabGroupProps> = ({
+/**
+ * Accessible TabGroup navigation bar with arrow keyboard navigation.
+ *
+ * @param props - Component properties
+ * @returns Tablist navigation container element
+ */
+const TabGroupComponent: React.FC<TabGroupProps> = ({
   tabs,
   activeTab,
   onTabChange,
@@ -29,32 +51,34 @@ export const TabGroup: React.FC<TabGroupProps> = ({
 }) => {
   const tabListRef = useRef<HTMLDivElement>(null);
 
-  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
-    let newIndex = index;
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      newIndex = (index + 1) % tabs.length;
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      newIndex = (index - 1 + tabs.length) % tabs.length;
-    } else if (e.key === 'Home') {
-      e.preventDefault();
-      newIndex = 0;
-    } else if (e.key === 'End') {
-      e.preventDefault();
-      newIndex = tabs.length - 1;
-    } else {
-      return;
-    }
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, index: number): void => {
+      let newIndex = index;
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        newIndex = (index + 1) % tabs.length;
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        newIndex = (index - 1 + tabs.length) % tabs.length;
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        newIndex = 0;
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        newIndex = tabs.length - 1;
+      } else {
+        return;
+      }
 
-    const nextTab = tabs[newIndex];
-    if (nextTab) {
-      onTabChange(nextTab.id);
-      // Focus newly selected tab element
-      const buttons = tabListRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
-      buttons?.[newIndex]?.focus();
-    }
-  };
+      const nextTab = tabs[newIndex];
+      if (nextTab) {
+        onTabChange(nextTab.id);
+        const buttons = tabListRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+        buttons?.[newIndex]?.focus();
+      }
+    },
+    [tabs, onTabChange]
+  );
 
   return (
     <div
@@ -100,3 +124,8 @@ export const TabGroup: React.FC<TabGroupProps> = ({
     </div>
   );
 };
+
+TabGroupComponent.displayName = 'TabGroup';
+
+export const TabGroup = React.memo(TabGroupComponent);
+export default TabGroup;

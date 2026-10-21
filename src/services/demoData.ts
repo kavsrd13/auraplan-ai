@@ -7,6 +7,7 @@
  */
 
 import type { EventFormInput, EventPlan } from '@/types/event';
+import { MILESTONE_STATUS, VENDOR_STATUS } from '@/utils/constants';
 
 /**
  * Returns a pre-populated EventFormInput for a Rustic Garden Wedding.
@@ -79,7 +80,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Lock Venue & Date',
         description: 'Finalize contract and pay deposit for Willow Creek Vineyard. Ensure outdoor rain backup pavilion is included.',
         dueDate: '2026-06-01',
-        status: 'completed',
+        status: MILESTONE_STATUS.COMPLETED,
         priority: 'high',
       },
       {
@@ -87,7 +88,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Book Photographer & Videographer',
         description: 'Sign contract with editorial fine-art photographer; schedule golden hour engagement shoot.',
         dueDate: '2026-07-15',
-        status: 'completed',
+        status: MILESTONE_STATUS.COMPLETED,
         priority: 'high',
       },
       {
@@ -95,7 +96,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Catering Menu Tasting & Bar Selection',
         description: 'Taste seasonal entrees, finalize vegetarian/GF meal counts, and design signature his & hers cocktails.',
         dueDate: '2026-08-10',
-        status: 'completed',
+        status: MILESTONE_STATUS.COMPLETED,
         priority: 'high',
       },
       {
@@ -103,7 +104,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Send Formal Invitations & Launch RSVP Website',
         description: 'Mail foil-pressed botanical invitations with QR code linking to digital RSVP and dietary restriction tracker.',
         dueDate: '2026-09-01',
-        status: 'in-progress',
+        status: MILESTONE_STATUS.IN_PROGRESS,
         priority: 'medium',
       },
       {
@@ -111,7 +112,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Floral Mock-up & Centerpiece Review',
         description: 'Review table mock-ups with florist. Ensure fragrant garden roses, ranunculus, and olive branches match color swatches.',
         dueDate: '2026-10-01',
-        status: 'in-progress',
+        status: MILESTONE_STATUS.IN_PROGRESS,
         priority: 'medium',
       },
       {
@@ -119,7 +120,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Finalize Run-of-Show & Music Playlist',
         description: 'Confirm timeline with MC, sound engineer, and coordinator. Finalize "Must Play" and "Do Not Play" lists.',
         dueDate: '2026-10-25',
-        status: 'pending',
+        status: MILESTONE_STATUS.PENDING,
         priority: 'high',
       },
       {
@@ -127,7 +128,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Final Guest Count & Seating Chart',
         description: 'Lock headcount with caterer 14 days out; assemble custom calligraphy seating mirror.',
         dueDate: '2026-11-06',
-        status: 'pending',
+        status: MILESTONE_STATUS.PENDING,
         priority: 'high',
       },
       {
@@ -135,7 +136,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Day-Of Schedule: 10:00 AM Hair & Makeup',
         description: 'Bridal party arrives at Willow Creek bridal suite for styling and champagne brunch.',
         dueDate: '2026-11-20',
-        status: 'pending',
+        status: MILESTONE_STATUS.PENDING,
         priority: 'medium',
       },
       {
@@ -143,7 +144,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Day-Of Schedule: 03:30 PM Outdoor Ceremony',
         description: 'Guest seating begins with acoustic prelude; processional starts promptly at 04:00 PM.',
         dueDate: '2026-11-20',
-        status: 'pending',
+        status: MILESTONE_STATUS.PENDING,
         priority: 'high',
       },
       {
@@ -151,7 +152,7 @@ export function getDemoPlan(): EventPlan {
         title: 'Day-Of Schedule: 06:30 PM Grand Entrance & Dinner',
         description: 'Dinner bell rings; sunset couple portraits wrap; farm-to-table family style meal served under string lights.',
         dueDate: '2026-11-20',
-        status: 'pending',
+        status: MILESTONE_STATUS.PENDING,
         priority: 'medium',
       },
     ],
@@ -160,7 +161,7 @@ export function getDemoPlan(): EventPlan {
         id: 'vendor-1',
         category: 'Venue & Facilities',
         vendorName: 'Willow Creek Vineyard Estate',
-        status: 'confirmed',
+        status: VENDOR_STATUS.CONFIRMED,
         estimatedCost: 13000,
         negotiationTips: [
           'Ask for complimentary access 2 hours earlier for floral and audio setup.',
@@ -179,7 +180,7 @@ export function getDemoPlan(): EventPlan {
         id: 'vendor-2',
         category: 'Catering & Bar',
         vendorName: 'Artisan Harvest Culinary Co.',
-        status: 'booked',
+        status: VENDOR_STATUS.BOOKED,
         estimatedCost: 11000,
         negotiationTips: [
           'Request free vendor meals for photographer, videographer, and band members.',
@@ -198,7 +199,7 @@ export function getDemoPlan(): EventPlan {
         id: 'vendor-3',
         category: 'Floral & Botanical Design',
         vendorName: 'Bloom & Wild Botanicals',
-        status: 'booked',
+        status: VENDOR_STATUS.BOOKED,
         estimatedCost: 7000,
         negotiationTips: [
           'Repurpose ceremony arch floral installations to the reception sweetheart table.',
@@ -217,7 +218,7 @@ export function getDemoPlan(): EventPlan {
         id: 'vendor-4',
         category: 'Photography & Cinematography',
         vendorName: 'Lumiere Fine Art Imagery',
-        status: 'confirmed',
+        status: VENDOR_STATUS.CONFIRMED,
         estimatedCost: 4500,
         negotiationTips: [
           'Bundle engagement session with full 8-hour wedding day coverage for a package discount.',
@@ -236,7 +237,7 @@ export function getDemoPlan(): EventPlan {
         id: 'vendor-5',
         category: 'Music & Entertainment',
         vendorName: 'SoundWave Live Band & DJs',
-        status: 'contacted',
+        status: VENDOR_STATUS.CONTACTED,
         estimatedCost: 3500,
         negotiationTips: [
           'Ask for acoustic duo package during ceremony to be included with the 5-piece reception band.',
@@ -255,7 +256,7 @@ export function getDemoPlan(): EventPlan {
         id: 'vendor-6',
         category: 'Event Coordination',
         vendorName: 'Ever After Planning & Design',
-        status: 'booked',
+        status: VENDOR_STATUS.BOOKED,
         estimatedCost: 2500,
         negotiationTips: [
           'Book a "Month-of" coordination package rather than Day-of to get rehearsal direction included.',

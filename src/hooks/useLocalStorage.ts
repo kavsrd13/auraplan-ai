@@ -10,9 +10,10 @@
 
 import { useState, useCallback } from 'react';
 import type { EventPlan } from '@/types/event';
+import { STORAGE_KEYS } from '@/utils/constants';
 
 /** Storage key for the array of saved event plans. */
-const PLANS_STORAGE_KEY = 'auraplan-saved-plans';
+const PLANS_STORAGE_KEY = STORAGE_KEYS.PLANS;
 
 /**
  * Custom hook for persisting state to `localStorage` with JSON serialization.

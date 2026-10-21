@@ -1,43 +1,65 @@
 /**
  * Secure API Key management modal.
  * Allows entering or modifying Gemini API key for live AI plan generation.
+ * Features password masking toggle, zero-persistence security guarantee note,
+ * and WCAG dialog semantics (role="dialog", aria-modal="true").
  *
  * @module ApiKeyModal
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Key, ShieldCheck, X, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
-interface ApiKeyModalProps {
+/**
+ * Props for the ApiKeyModal component.
+ */
+export interface ApiKeyModalProps {
+  /** Whether the modal dialog is visibly open */
   isOpen: boolean;
+  /** Callback fired to close the modal dialog */
   onClose: () => void;
+  /** Current API key from state */
   apiKey: string;
+  /** Callback invoked when the user saves a new API key */
   onSaveKey: (key: string) => void;
 }
 
-export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
+/**
+ * Accessible Modal Dialog for configuring Gemini API credentials.
+ *
+ * @param props - Component properties
+ * @returns Dialog overlay portal or null if closed
+ */
+const ApiKeyModalComponent: React.FC<ApiKeyModalProps> = ({
   isOpen,
   onClose,
   apiKey,
   onSaveKey,
 }) => {
-  const [inputValue, setInputValue] = useState(apiKey);
-  const [showKey, setShowKey] = useState(false);
+  const [inputValue, setInputValue] = useState<string>(apiKey);
+  const [showKey, setShowKey] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  const handleSave = useCallback(
+    (e: React.FormEvent): void => {
+      e.preventDefault();
+      const trimmed = inputValue.trim();
+      if (!trimmed) {
+        setError('Please enter a valid API key or token.');
+        return;
+      }
+      setError(null);
+      onSaveKey(trimmed);
+      onClose();
+    },
+    [inputValue, onSaveKey, onClose]
+  );
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = inputValue.trim();
-    if (!trimmed) {
-      setError('Please enter a valid API key or token.');
-      return;
-    }
-    setError(null);
-    onSaveKey(trimmed);
-    onClose();
-  };
+  const toggleShowKey = useCallback((): void => {
+    setShowKey((prev) => !prev);
+  }, []);
+
+  if (!isOpen) return null;
 
   return (
     <div
@@ -55,6 +77,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
             </h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close dialog"
             className="p-1.5 rounded-lg text-surface-500 hover:text-surface-800 hover:bg-surface-100 focus:outline-none focus:ring-2 focus:ring-aura-500"
@@ -100,7 +123,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
               />
               <button
                 type="button"
-                onClick={() => setShowKey(!showKey)}
+                onClick={toggleShowKey}
                 aria-label={showKey ? 'Hide API key' : 'Show API key'}
                 className="absolute right-2.5 top-2.5 text-surface-400 hover:text-surface-700 focus:outline-none focus:ring-2 focus:ring-aura-500 rounded p-1"
               >
@@ -123,7 +146,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
               >
                 Get one free at Google AI Studio
               </a>
-              . (Or click "Load Demo Event" to explore without a key).
+              . (Or click &quot;Load Demo Event&quot; to explore without a key).
             </p>
           </div>
 
@@ -147,3 +170,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     </div>
   );
 };
+
+ApiKeyModalComponent.displayName = 'ApiKeyModal';
+
+export const ApiKeyModal = React.memo(ApiKeyModalComponent);
+export default ApiKeyModal;

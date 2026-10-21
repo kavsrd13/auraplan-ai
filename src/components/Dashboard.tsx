@@ -2,11 +2,13 @@
  * Main Event Planning Dashboard container.
  * Coordinates all tabs (Budget, Timeline, Vendors, Ideas, Export)
  * and embeds the interactive AI Co-Planner refinement chat panel.
+ * Optimized with React.lazy code splitting, Suspense skeleton loaders,
+ * ErrorBoundary protection, and React.memo.
  *
  * @module Dashboard
  */
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useMemo, useCallback } from 'react';
 import {
   DollarSign,
   Calendar,
@@ -25,29 +27,52 @@ import type {
   ChatMessage,
 } from '@/types/event';
 import { TabGroup, type TabItem } from './ui/TabGroup';
-import { BudgetTracker } from './BudgetTracker';
-import { TimelineView } from './TimelineView';
-import { VendorChecklist } from './VendorChecklist';
-import { IdeaBoard } from './IdeaBoard';
-import { ExportPanel } from './ExportPanel';
 import { AIChatPanel } from './AIChatPanel';
 import { SkeletonLoader } from './SkeletonLoader';
+import { ErrorBoundary } from './ErrorBoundary';
 import { formatCurrency } from '@/utils/calculations';
+import { DASHBOARD_TABS } from '@/utils/constants';
 
-interface DashboardProps {
+// Code-split heavy dashboard tab components with React.lazy
+const BudgetTracker = React.lazy(() => import('./BudgetTracker'));
+const TimelineView = React.lazy(() => import('./TimelineView'));
+const VendorChecklist = React.lazy(() => import('./VendorChecklist'));
+const IdeaBoard = React.lazy(() => import('./IdeaBoard'));
+const ExportPanel = React.lazy(() => import('./ExportPanel'));
+
+/**
+ * Props for Dashboard component.
+ */
+export interface DashboardProps {
+  /** Complete active event plan */
   plan: EventPlan;
+  /** Currently active tab identifier */
   activeTab: DashboardTab;
+  /** Callback fired when user switches active tab */
   onTabChange: (tab: DashboardTab) => void;
+  /** Callback to update a specific budget category */
   onUpdateBudget: (index: number, updates: Partial<BudgetCategory>) => void;
+  /** Callback to update a milestone by ID */
   onUpdateMilestone: (id: string, updates: Partial<TimelineMilestone>) => void;
+  /** Callback to update a vendor by ID */
   onUpdateVendor: (id: string, updates: Partial<VendorItem>) => void;
+  /** Callback to persist plan to localStorage */
   onSavePlan: () => void;
+  /** Gemini API key string or empty */
   apiKey: string;
+  /** Chat history array */
   chatMessages: ChatMessage[];
+  /** Callback to append a new message to chat state */
   onAddChatMessage: (msg: ChatMessage) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({
+/**
+ * Primary dashboard view coordinating event planning workspaces and AI interaction.
+ *
+ * @param props - Component properties
+ * @returns Master planning dashboard interface
+ */
+const DashboardComponent: React.FC<DashboardProps> = ({
   plan,
   activeTab,
   onTabChange,
@@ -59,35 +84,46 @@ export const Dashboard: React.FC<DashboardProps> = ({
   chatMessages,
   onAddChatMessage,
 }) => {
-  const tabs: TabItem[] = [
-    {
-      id: 'budget',
-      label: 'Budget Breakdown',
-      icon: <DollarSign className="w-4 h-4" />,
+  // Memoize tabs definition to prevent recreating icons and badge references
+  const tabs: TabItem[] = useMemo(
+    () => [
+      {
+        id: DASHBOARD_TABS.BUDGET,
+        label: 'Budget Breakdown',
+        icon: <DollarSign className="w-4 h-4" />,
+      },
+      {
+        id: DASHBOARD_TABS.TIMELINE,
+        label: 'Timeline & Schedule',
+        icon: <Calendar className="w-4 h-4" />,
+        badge: plan.timeline.length,
+      },
+      {
+        id: DASHBOARD_TABS.VENDORS,
+        label: 'Vendor Checklist',
+        icon: <Store className="w-4 h-4" />,
+        badge: plan.vendors.length,
+      },
+      {
+        id: DASHBOARD_TABS.IDEAS,
+        label: 'Ideas & Palettes',
+        icon: <Sparkles className="w-4 h-4" />,
+      },
+      {
+        id: DASHBOARD_TABS.EXPORT,
+        label: 'Export & Share',
+        icon: <Download className="w-4 h-4" />,
+      },
+    ],
+    [plan.timeline.length, plan.vendors.length]
+  );
+
+  const handleTabSelect = useCallback(
+    (tabId: string): void => {
+      onTabChange(tabId as DashboardTab);
     },
-    {
-      id: 'timeline',
-      label: 'Timeline & Schedule',
-      icon: <Calendar className="w-4 h-4" />,
-      badge: plan.timeline.length,
-    },
-    {
-      id: 'vendors',
-      label: 'Vendor Checklist',
-      icon: <Store className="w-4 h-4" />,
-      badge: plan.vendors.length,
-    },
-    {
-      id: 'ideas',
-      label: 'Ideas & Palettes',
-      icon: <Sparkles className="w-4 h-4" />,
-    },
-    {
-      id: 'export',
-      label: 'Export & Share',
-      icon: <Download className="w-4 h-4" />,
-    },
-  ];
+    [onTabChange]
+  );
 
   return (
     <div className="space-y-6">
@@ -156,11 +192,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <TabGroup
             tabs={tabs}
             activeTab={activeTab}
-            onTabChange={(id) => onTabChange(id as DashboardTab)}
+            onTabChange={handleTabSelect}
             ariaLabel="Event planning dashboard sections"
           />
 
-          {/* Accessible Tab Panels */}
+          {/* Accessible Tab Panels protected with ErrorBoundary */}
           <div
             id={`panel-${activeTab}`}
             role="tabpanel"
@@ -168,51 +204,66 @@ export const Dashboard: React.FC<DashboardProps> = ({
             tabIndex={0}
             className="focus:outline-none focus:ring-1 focus:ring-aura-400 rounded-2xl"
           >
-            <Suspense fallback={<SkeletonLoader type={activeTab === 'export' ? 'general' : activeTab} />}>
-              {activeTab === 'budget' && (
-                <BudgetTracker
-                  totalBudget={plan.eventInput.totalBudget}
-                  budget={plan.budget}
-                  onUpdateCategory={onUpdateBudget}
-                />
-              )}
+            <ErrorBoundary>
+              <Suspense
+                fallback={
+                  <SkeletonLoader
+                    type={activeTab === DASHBOARD_TABS.EXPORT ? 'general' : activeTab}
+                  />
+                }
+              >
+                {activeTab === DASHBOARD_TABS.BUDGET && (
+                  <BudgetTracker
+                    totalBudget={plan.eventInput.totalBudget}
+                    budget={plan.budget}
+                    onUpdateCategory={onUpdateBudget}
+                  />
+                )}
 
-              {activeTab === 'timeline' && (
-                <TimelineView
-                  timeline={plan.timeline}
-                  eventDate={plan.eventInput.eventDate}
-                  onUpdateMilestone={onUpdateMilestone}
-                />
-              )}
+                {activeTab === DASHBOARD_TABS.TIMELINE && (
+                  <TimelineView
+                    timeline={plan.timeline}
+                    eventDate={plan.eventInput.eventDate}
+                    onUpdateMilestone={onUpdateMilestone}
+                  />
+                )}
 
-              {activeTab === 'vendors' && (
-                <VendorChecklist
-                  vendors={plan.vendors}
-                  onUpdateVendor={onUpdateVendor}
-                />
-              )}
+                {activeTab === DASHBOARD_TABS.VENDORS && (
+                  <VendorChecklist
+                    vendors={plan.vendors}
+                    onUpdateVendor={onUpdateVendor}
+                  />
+                )}
 
-              {activeTab === 'ideas' && <IdeaBoard ideas={plan.ideas} />}
+                {activeTab === DASHBOARD_TABS.IDEAS && <IdeaBoard ideas={plan.ideas} />}
 
-              {activeTab === 'export' && (
-                <ExportPanel plan={plan} onSavePlan={onSavePlan} />
-              )}
-            </Suspense>
+                {activeTab === DASHBOARD_TABS.EXPORT && (
+                  <ExportPanel plan={plan} onSavePlan={onSavePlan} />
+                )}
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </div>
 
         {/* Right Column: AI Co-Planner Panel */}
         <div className="lg:col-span-1">
           <div className="sticky top-20">
-            <AIChatPanel
-              currentPlan={plan}
-              apiKey={apiKey}
-              messages={chatMessages}
-              onAddMessage={onAddChatMessage}
-            />
+            <ErrorBoundary>
+              <AIChatPanel
+                currentPlan={plan}
+                apiKey={apiKey}
+                messages={chatMessages}
+                onAddMessage={onAddChatMessage}
+              />
+            </ErrorBoundary>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+DashboardComponent.displayName = 'Dashboard';
+
+export const Dashboard = React.memo(DashboardComponent);
+export default Dashboard;

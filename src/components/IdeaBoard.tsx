@@ -2,11 +2,12 @@
  * Personalized Ideas & Concept Board component.
  * Custom theme concepts, color palettes with interactive CSS color swatches,
  * menu suggestions with dietary accommodation notes, decor areas, and entertainment.
+ * Optimized with useCallback and React.memo.
  *
  * @module IdeaBoard
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Palette,
   UtensilsCrossed,
@@ -19,18 +20,30 @@ import {
 import type { IdeaBoard as IdeaBoardType } from '@/types/event';
 import { formatCurrency } from '@/utils/calculations';
 
-interface IdeaBoardProps {
+/**
+ * Props for IdeaBoard component.
+ */
+export interface IdeaBoardProps {
+  /** Complete creative ideas object including themes, palettes, menus, and decor */
   ideas: IdeaBoardType;
 }
 
-export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas }) => {
+/**
+ * Interactive Idea Board presenting generative creative concepts and color swatches.
+ *
+ * @param props - Component properties
+ * @returns Concept board layout with copy-to-clipboard swatches
+ */
+const IdeaBoardComponent: React.FC<IdeaBoardProps> = ({ ideas }) => {
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
 
-  const copyToClipboard = (hex: string) => {
-    navigator.clipboard?.writeText(hex);
-    setCopiedColor(hex);
-    setTimeout(() => setCopiedColor(null), 2000);
-  };
+  const copyToClipboard = useCallback((hex: string): void => {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(hex);
+      setCopiedColor(hex);
+      setTimeout(() => setCopiedColor(null), 2000);
+    }
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -84,6 +97,7 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas }) => {
                     return (
                       <button
                         key={cIdx}
+                        type="button"
                         onClick={() => copyToClipboard(hex)}
                         title={`Copy ${hex}`}
                         aria-label={`Copy color ${hex} to clipboard`}
@@ -211,3 +225,8 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas }) => {
     </div>
   );
 };
+
+IdeaBoardComponent.displayName = 'IdeaBoard';
+
+export const IdeaBoard = React.memo(IdeaBoardComponent);
+export default IdeaBoard;

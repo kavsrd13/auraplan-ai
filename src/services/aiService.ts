@@ -16,6 +16,7 @@ import { sanitizeForPrompt } from '@/utils/sanitize';
 import { validateAIResponse } from '@/utils/validation';
 import { generateId, calculateBudgetAllocations } from '@/utils/calculations';
 import { getDemoPlan } from '@/services/demoData';
+import { AI_CONFIG, MILESTONE_STATUS } from '@/utils/constants';
 
 /** In-memory cache for generated plans indexed by hashed input. */
 const planCache = new Map<string, AIGeneratedPlan>();
@@ -242,7 +243,7 @@ export async function generateEventPlan(
   const ai = new GoogleGenAI({ apiKey });
 
   // 4. Retry loop with exponential backoff (up to 3 attempts: 1s, 2s, 4s)
-  const maxRetries = 3;
+  const maxRetries = AI_CONFIG.MAX_RETRIES;
   let lastError: unknown = null;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -252,7 +253,7 @@ export async function generateEventPlan(
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash-lite',
+        model: AI_CONFIG.PRIMARY_MODEL,
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -326,7 +327,7 @@ export function generateOfflineFallbackPlan(input: EventFormInput): AIGeneratedP
         title: `Finalize ${input.eventType === 'wedding' ? 'Ceremony Venue' : input.eventType === 'birthday' ? 'Party Venue' : 'Community Hall'}`,
         description: `Secure venue contract in ${input.location} with guest capacity for ${input.guestCount} guests.`,
         dueDate: input.eventDate,
-        status: 'in-progress',
+        status: MILESTONE_STATUS.IN_PROGRESS,
         priority: 'high',
       },
       {
@@ -334,7 +335,7 @@ export function generateOfflineFallbackPlan(input: EventFormInput): AIGeneratedP
         title: 'Review Catering & Dietary Requirements',
         description: `Finalize menu accommodations: ${input.dietaryPreferences || 'Standard options'}`,
         dueDate: input.eventDate,
-        status: 'pending',
+        status: MILESTONE_STATUS.PENDING,
         priority: 'high',
       },
       {
@@ -342,7 +343,7 @@ export function generateOfflineFallbackPlan(input: EventFormInput): AIGeneratedP
         title: 'Theme & Decor Setup Planning',
         description: `Coordinate decor matching vibe: "${input.theme}". Cultural notes: ${input.culturalPreferences || 'Standard'}`,
         dueDate: input.eventDate,
-        status: 'pending',
+        status: MILESTONE_STATUS.PENDING,
         priority: 'medium',
       },
       {
@@ -350,7 +351,7 @@ export function generateOfflineFallbackPlan(input: EventFormInput): AIGeneratedP
         title: 'Day-Of Schedule: Setup & Rehearsal',
         description: 'Vendor arrival, audiovisual soundcheck, and final table layout inspection.',
         dueDate: input.eventDate,
-        status: 'pending',
+        status: MILESTONE_STATUS.PENDING,
         priority: 'medium',
       },
       {
@@ -358,7 +359,7 @@ export function generateOfflineFallbackPlan(input: EventFormInput): AIGeneratedP
         title: 'Day-Of Schedule: Guest Welcome & Start',
         description: `Doors open for ${input.guestCount} guests with welcome beverages and music.`,
         dueDate: input.eventDate,
-        status: 'pending',
+        status: MILESTONE_STATUS.PENDING,
         priority: 'high',
       },
     ],

@@ -1,6 +1,7 @@
 /**
- * Main application layout component.
- * Uses semantic HTML5 landmarks: header, nav, main, footer, aside.
+ * Main application layout component conforming to semantic HTML5 landmarks.
+ * Provides accessible scaffolding with header, main, footer, skip link, and
+ * accessibility preferences toolbar.
  *
  * @module Layout
  */
@@ -11,18 +12,35 @@ import { SkipLink } from './SkipLink';
 import { AccessibilityToolbar } from './AccessibilityToolbar';
 import type { AppView } from '@/types/event';
 
-interface LayoutProps {
+/**
+ * Props for the Layout component.
+ */
+export interface LayoutProps {
+  /** Page or modal content nested inside the layout landmark */
   children: React.ReactNode;
+  /** Active primary application view mode ('form' or 'dashboard') */
   view: AppView;
+  /** Whether an active event plan is currently loaded in state */
   hasPlan?: boolean;
+  /** Active Gemini API key string or empty */
   apiKey: string;
+  /** Handler invoked to open API key configuration dialog */
   onOpenApiKeyModal: () => void;
+  /** Handler to load sample demonstration event data */
   onLoadDemo: () => void;
+  /** Handler to start a fresh event planning session */
   onNewPlan: () => void;
+  /** Optional title of the currently loaded plan for header display */
   eventTitle?: string;
 }
 
-export const Layout: React.FC<LayoutProps> = ({
+/**
+ * Semantic layout container wrapping the entire AuraPlan application.
+ *
+ * @param props - Component properties
+ * @returns Landmark-rich layout hierarchy
+ */
+const LayoutComponent: React.FC<LayoutProps> = ({
   children,
   view,
   apiKey,
@@ -70,6 +88,7 @@ export const Layout: React.FC<LayoutProps> = ({
             <div className="flex items-center gap-2.5">
               {view === 'dashboard' && (
                 <button
+                  type="button"
                   onClick={onNewPlan}
                   aria-label="Create new event plan"
                   className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-surface-700 hover:text-surface-900 bg-surface-100 hover:bg-surface-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-aura-500"
@@ -80,6 +99,7 @@ export const Layout: React.FC<LayoutProps> = ({
               )}
 
               <button
+                type="button"
                 onClick={onLoadDemo}
                 aria-label="Load demo event plan"
                 className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-aura-700 hover:text-aura-800 bg-aura-50 hover:bg-aura-100 border border-aura-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-aura-500"
@@ -89,6 +109,7 @@ export const Layout: React.FC<LayoutProps> = ({
               </button>
 
               <button
+                type="button"
                 onClick={onOpenApiKeyModal}
                 aria-label="Configure Gemini API Key"
                 className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-aura-500 ${
@@ -133,3 +154,8 @@ export const Layout: React.FC<LayoutProps> = ({
     </div>
   );
 };
+
+LayoutComponent.displayName = 'Layout';
+
+export const Layout = React.memo(LayoutComponent);
+export default Layout;

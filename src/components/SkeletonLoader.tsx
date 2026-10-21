@@ -1,17 +1,33 @@
 /**
- * Skeleton loading placeholders for dashboard tabs.
- * Provides accessible, animated loading states with aria-busy and aria-live announcements.
+ * Skeleton loading placeholders for dashboard tabs and heavy UI sections.
+ * Provides accessible, animated loading states with aria-busy="true" and aria-live="polite".
+ * Supports distinct structural layouts matching Budget, Timeline, Vendor, and Idea tabs.
  *
  * @module SkeletonLoader
  */
 
 import React from 'react';
 
-interface SkeletonLoaderProps {
-  type?: 'budget' | 'timeline' | 'vendors' | 'ideas' | 'general';
+/**
+ * Supported structural skeleton loader layout variants.
+ */
+export type SkeletonType = 'budget' | 'timeline' | 'vendors' | 'ideas' | 'general';
+
+/**
+ * Props for the SkeletonLoader component.
+ */
+export interface SkeletonLoaderProps {
+  /** Layout structure variant to display */
+  type?: SkeletonType;
 }
 
-export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ type = 'general' }) => {
+/**
+ * Accessible SkeletonLoader component.
+ *
+ * @param props - Component properties
+ * @returns Animated pulse skeleton placeholder
+ */
+const SkeletonLoaderComponent: React.FC<SkeletonLoaderProps> = ({ type = 'general' }) => {
   return (
     <div
       role="status"
@@ -23,8 +39,8 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ type = 'general'
 
       {type === 'budget' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-28 bg-surface-200 rounded-xl p-4">
                 <div className="h-4 bg-surface-300 rounded w-1/3 mb-3"></div>
                 <div className="h-8 bg-surface-300 rounded w-2/3"></div>
@@ -94,3 +110,8 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ type = 'general'
     </div>
   );
 };
+
+SkeletonLoaderComponent.displayName = 'SkeletonLoader';
+
+export const SkeletonLoader = React.memo(SkeletonLoaderComponent);
+export default SkeletonLoader;

@@ -26,6 +26,10 @@ import {
   sortTimelineByDate,
 } from '@/utils/calculations';
 import {
+  MILESTONE_STATUS,
+  VENDOR_STATUS,
+} from '@/utils/constants';
+import {
   loadPlansFromStorage,
   savePlanToStorage,
 } from '@/hooks/useLocalStorage';
@@ -228,7 +232,7 @@ export function useEventPlan(initialOverride?: Partial<AppState>) {
 
   const completedMilestonesCount = useMemo(() => {
     return (
-      state.currentPlan?.timeline.filter((m) => m.status === 'completed')
+      state.currentPlan?.timeline.filter((m) => m.status === MILESTONE_STATUS.COMPLETED)
         .length || 0
     );
   }, [state.currentPlan?.timeline]);
@@ -236,7 +240,7 @@ export function useEventPlan(initialOverride?: Partial<AppState>) {
   const bookedVendorsCount = useMemo(() => {
     return (
       state.currentPlan?.vendors.filter(
-        (v) => v.status === 'booked' || v.status === 'confirmed'
+        (v) => v.status === VENDOR_STATUS.BOOKED || v.status === VENDOR_STATUS.CONFIRMED
       ).length || 0
     );
   }, [state.currentPlan?.vendors]);

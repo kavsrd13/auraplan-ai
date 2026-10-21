@@ -2,11 +2,12 @@
  * Chronological Timeline & Run-of-Show component.
  * Features milestone countdowns, day-of hourly schedules, status toggles,
  * priority indicators, and filter controls.
+ * Optimized with useMemo, useCallback, and React.memo.
  *
  * @module TimelineView
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   Calendar,
   CheckCircle2,
@@ -17,52 +18,87 @@ import {
 import type { TimelineMilestone, TaskStatus } from '@/types/event';
 import { Badge } from './ui/Badge';
 import { calculateDaysUntil } from '@/utils/calculations';
+import { MILESTONE_STATUS } from '@/utils/constants';
 
-interface TimelineViewProps {
+/**
+ * Props for TimelineView component.
+ */
+export interface TimelineViewProps {
+  /** List of chronologically sorted milestones */
   timeline: TimelineMilestone[];
+  /** Target event date string in ISO format (YYYY-MM-DD) */
   eventDate: string;
+  /** Callback to update a milestone by ID */
   onUpdateMilestone: (id: string, updates: Partial<TimelineMilestone>) => void;
 }
 
-export const TimelineView: React.FC<TimelineViewProps> = ({
+/**
+ * Interactive Timeline & Schedule view.
+ *
+ * @param props - Component properties
+ * @returns Milestone tracker UI with filtering and status transitions
+ */
+const TimelineViewComponent: React.FC<TimelineViewProps> = ({
   timeline,
   eventDate,
   onUpdateMilestone,
 }) => {
   const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
 
-  const filteredTimeline = timeline.filter((item) => {
-    if (filterStatus === 'all') return true;
-    return item.status === filterStatus;
-  });
-
+  // Memoize counts to avoid recomputing on unrelated re-renders
   const totalCount = timeline.length;
-  const completedCount = timeline.filter((m) => m.status === 'completed').length;
-  const inProgressCount = timeline.filter((m) => m.status === 'in-progress').length;
-  const pendingCount = timeline.filter((m) => m.status === 'pending').length;
-  const completionPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
-  const daysToEvent = calculateDaysUntil(eventDate);
+  const completedCount = useMemo(
+    () => timeline.filter((m) => m.status === MILESTONE_STATUS.COMPLETED).length,
+    [timeline]
+  );
 
-  const getPriorityBadge = (priority: 'low' | 'medium' | 'high') => {
+  const inProgressCount = useMemo(
+    () => timeline.filter((m) => m.status === MILESTONE_STATUS.IN_PROGRESS).length,
+    [timeline]
+  );
+
+  const pendingCount = useMemo(
+    () => timeline.filter((m) => m.status === MILESTONE_STATUS.PENDING).length,
+    [timeline]
+  );
+
+  const completionPercent = useMemo(
+    () => (totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0),
+    [totalCount, completedCount]
+  );
+
+  // Memoize filtered items
+  const filteredTimeline = useMemo(() => {
+    if (filterStatus === 'all') return timeline;
+    return timeline.filter((item) => item.status === filterStatus);
+  }, [timeline, filterStatus]);
+
+  const daysToEvent = useMemo(() => calculateDaysUntil(eventDate), [eventDate]);
+
+  const cycleStatus = useCallback(
+    (milestone: TimelineMilestone): void => {
+      const nextStatus: Record<TaskStatus, TaskStatus> = {
+        pending: 'in-progress',
+        'in-progress': 'completed',
+        completed: 'pending',
+      };
+      onUpdateMilestone(milestone.id, { status: nextStatus[milestone.status] });
+    },
+    [onUpdateMilestone]
+  );
+
+  const getPriorityBadge = useCallback((priority: 'low' | 'medium' | 'high') => {
     switch (priority) {
       case 'high':
         return <Badge variant="danger" size="sm">High Priority</Badge>;
       case 'medium':
         return <Badge variant="warning" size="sm">Medium</Badge>;
       case 'low':
+      default:
         return <Badge variant="neutral" size="sm">Low</Badge>;
     }
-  };
-
-  const cycleStatus = (milestone: TimelineMilestone) => {
-    const nextStatus: Record<TaskStatus, TaskStatus> = {
-      pending: 'in-progress',
-      'in-progress': 'completed',
-      completed: 'pending',
-    };
-    onUpdateMilestone(milestone.id, { status: nextStatus[milestone.status] });
-  };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -98,6 +134,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 p-1 bg-surface-100 rounded-xl border border-surface-200">
           <button
+            type="button"
             onClick={() => setFilterStatus('all')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
               filterStatus === 'all'
@@ -108,6 +145,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
             All ({totalCount})
           </button>
           <button
+            type="button"
             onClick={() => setFilterStatus('pending')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
               filterStatus === 'pending'
@@ -118,6 +156,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
             Pending ({pendingCount})
           </button>
           <button
+            type="button"
             onClick={() => setFilterStatus('in-progress')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
               filterStatus === 'in-progress'
@@ -128,6 +167,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
             In Progress ({inProgressCount})
           </button>
           <button
+            type="button"
             onClick={() => setFilterStatus('completed')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
               filterStatus === 'completed'
@@ -208,6 +248,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
                   {/* Status Toggle Button */}
                   <div className="flex items-center gap-3 sm:self-start">
                     <button
+                      type="button"
                       onClick={() => cycleStatus(milestone)}
                       aria-label={`Current status: ${milestone.status}. Click to cycle status.`}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-aura-500 ${
@@ -256,3 +297,8 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
     </div>
   );
 };
+
+TimelineViewComponent.displayName = 'TimelineView';
+
+export const TimelineView = React.memo(TimelineViewComponent);
+export default TimelineView;

@@ -2,11 +2,12 @@
  * Event planning input form with full WCAG 2.1 AA accessibility.
  * Every input features explicit htmlFor labels, aria-required, aria-invalid,
  * and aria-describedby linked to specific error message containers.
+ * Optimized with useFormValidation hook and React.memo.
  *
  * @module EventForm
  */
 
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   Sparkles,
   Calendar,
@@ -20,100 +21,89 @@ import {
   PlayCircle,
 } from 'lucide-react';
 import type { EventFormInput, EventType } from '@/types/event';
-import { validateEventForm } from '@/utils/validation';
+import { useFormValidation, type PresetData } from '@/hooks/useFormValidation';
 
-interface EventFormProps {
+/**
+ * Props for EventForm component.
+ */
+export interface EventFormProps {
+  /** Callback fired when user submits a valid event specification */
   onSubmit: (input: EventFormInput) => void;
+  /** Callback to trigger loading pre-built demo celebration data */
   onLoadDemo: () => void;
+  /** Whether GenAI is currently processing in-flight generation */
   isGenerating: boolean;
+  /** Optional initial form values for pre-population */
   initialValues?: Partial<EventFormInput>;
 }
 
-export const EventForm: React.FC<EventFormProps> = ({
+/**
+ * Accessible, responsive event form for capturing user criteria.
+ *
+ * @param props - Component properties
+ * @returns Event creation form landmark section
+ */
+const EventFormComponent: React.FC<EventFormProps> = ({
   onSubmit,
   onLoadDemo,
   isGenerating,
   initialValues,
 }) => {
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  // Delegate form state, touched states, and validation focus to custom hook
+  const {
+    formData,
+    errors,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    applyPreset,
+  } = useFormValidation(onSubmit, initialValues);
 
-  const [formData, setFormData] = useState<EventFormInput>({
-    eventType: initialValues?.eventType || 'wedding',
-    theme: initialValues?.theme || '',
-    guestCount: initialValues?.guestCount || 100,
-    totalBudget: initialValues?.totalBudget || 25000,
-    eventDate: initialValues?.eventDate || tomorrow,
-    location: initialValues?.location || '',
-    dietaryPreferences: initialValues?.dietaryPreferences || '',
-    culturalPreferences: initialValues?.culturalPreferences || '',
-  });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-
-  const handleChange = (
-    field: keyof EventFormInput,
-    value: string | number
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (touched[field]) {
-      // Clear error on change if already touched
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
-  };
-
-  const handleBlur = (field: keyof EventFormInput) => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-    const result = validateEventForm(formData);
-    if (!result.success && result.errors) {
-      if (result.errors[field]) {
-        setErrors((prev) => ({ ...prev, [field]: result.errors![field] }));
-      }
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = validateEventForm(formData);
-    if (!result.success && result.errors) {
-      setErrors(result.errors);
-      // Mark all touched
-      const allTouched: Record<string, boolean> = {};
-      Object.keys(formData).forEach((k) => (allTouched[k] = true));
-      setTouched(allTouched);
-
-      // Focus first erroneous element for accessibility
-      const firstErrorKey = Object.keys(result.errors)[0];
-      const element = document.getElementById(firstErrorKey);
-      element?.focus();
-      return;
-    }
-
-    if (result.data) {
-      setErrors({});
-      onSubmit(result.data);
-    }
-  };
-
-  const applyPreset = (preset: {
-    eventType: EventType;
-    theme: string;
-    guestCount: number;
-    totalBudget: number;
-    location: string;
-    dietaryPreferences: string;
-    culturalPreferences: string;
-  }) => {
-    setFormData((prev) => ({
-      ...prev,
-      ...preset,
-    }));
-    setErrors({});
-  };
+  // Memoize preset definitions
+  const presets: Array<{ id: string; label: string; data: PresetData }> = useMemo(
+    () => [
+      {
+        id: 'glasshouse',
+        label: '🌿 Glasshouse Wedding',
+        data: {
+          eventType: 'wedding',
+          theme: 'Enchanted Botanical Glasshouse',
+          guestCount: 120,
+          totalBudget: 35000,
+          location: 'Botanical Conservatory, Seattle, WA',
+          dietaryPreferences: 'Vegan main entree requested, Nut allergies',
+          culturalPreferences: 'Handfasting unity ritual',
+        },
+      },
+      {
+        id: 'neon',
+        label: '⚡ Neon Birthday',
+        data: {
+          eventType: 'birthday',
+          theme: 'Neon Cyberpunk 30th Birthday',
+          guestCount: 65,
+          totalBudget: 8500,
+          location: 'Loft 404 Industrial Studio, Chicago, IL',
+          dietaryPreferences: 'Tapas & finger foods, dairy-free options',
+          culturalPreferences: 'Retro arcade game tournament',
+        },
+      },
+      {
+        id: 'community',
+        label: '🎪 Community Fair',
+        data: {
+          eventType: 'community',
+          theme: 'Autumn Harvest & Artisan Makers Fair',
+          guestCount: 400,
+          totalBudget: 18000,
+          location: 'Civic Town Square & Amphitheater, Austin, TX',
+          dietaryPreferences: 'Local food truck row (Halal, Kosher, Vegan options)',
+          culturalPreferences: 'Indigenous land acknowledgement, bilingual signage',
+        },
+      },
+    ],
+    []
+  );
 
   return (
     <section
@@ -137,57 +127,16 @@ export const EventForm: React.FC<EventFormProps> = ({
           <span className="text-xs font-semibold text-surface-500 self-center mr-1">
             Quick Infill:
           </span>
-          <button
-            type="button"
-            onClick={() =>
-              applyPreset({
-                eventType: 'wedding',
-                theme: 'Enchanted Botanical Glasshouse',
-                guestCount: 120,
-                totalBudget: 35000,
-                location: 'Botanical Conservatory, Seattle, WA',
-                dietaryPreferences: 'Vegan main entree requested, Nut allergies',
-                culturalPreferences: 'Handfasting unity ritual',
-              })
-            }
-            className="text-xs px-3 py-1 rounded-full bg-surface-100 hover:bg-aura-50 text-surface-700 hover:text-aura-700 border border-surface-200 transition-colors"
-          >
-            🌿 Glasshouse Wedding
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              applyPreset({
-                eventType: 'birthday',
-                theme: 'Neon Cyberpunk 30th Birthday',
-                guestCount: 65,
-                totalBudget: 8500,
-                location: 'Loft 404 Industrial Studio, Chicago, IL',
-                dietaryPreferences: 'Tapas & finger foods, dairy-free options',
-                culturalPreferences: 'Retro arcade game tournament',
-              })
-            }
-            className="text-xs px-3 py-1 rounded-full bg-surface-100 hover:bg-aura-50 text-surface-700 hover:text-aura-700 border border-surface-200 transition-colors"
-          >
-            ⚡ Neon Birthday
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              applyPreset({
-                eventType: 'community',
-                theme: 'Autumn Harvest & Artisan Makers Fair',
-                guestCount: 400,
-                totalBudget: 18000,
-                location: 'Civic Town Square & Amphitheater, Austin, TX',
-                dietaryPreferences: 'Local food truck row (Halal, Kosher, Vegan options)',
-                culturalPreferences: 'Indigenous land acknowledgement, bilingual signage',
-              })
-            }
-            className="text-xs px-3 py-1 rounded-full bg-surface-100 hover:bg-aura-50 text-surface-700 hover:text-aura-700 border border-surface-200 transition-colors"
-          >
-            🎪 Community Fair
-          </button>
+          {presets.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              onClick={() => applyPreset(preset.data)}
+              className="text-xs px-3 py-1 rounded-full bg-surface-100 hover:bg-aura-50 text-surface-700 hover:text-aura-700 border border-surface-200 transition-colors"
+            >
+              {preset.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -293,7 +242,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 name="guestCount"
                 type="number"
                 min="1"
-                max="10000"
+                max="50000"
                 required
                 aria-required="true"
                 aria-invalid={!!errors.guestCount}
@@ -530,3 +479,8 @@ export const EventForm: React.FC<EventFormProps> = ({
     </section>
   );
 };
+
+EventFormComponent.displayName = 'EventForm';
+
+export const EventForm = React.memo(EventFormComponent);
+export default EventForm;

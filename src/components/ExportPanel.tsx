@@ -2,11 +2,12 @@
  * Export & Persistence management component.
  * Allows 1-click export to formatted Markdown (.md), full JSON structure,
  * and launches print-friendly PDF browser dialogue.
+ * Optimized with useCallback and React.memo.
  *
  * @module ExportPanel
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Download,
   FileCode,
@@ -17,21 +18,32 @@ import {
 import type { EventPlan } from '@/types/event';
 import { formatCurrency } from '@/utils/calculations';
 
-interface ExportPanelProps {
+/**
+ * Props for the ExportPanel component.
+ */
+export interface ExportPanelProps {
+  /** Complete active event plan */
   plan: EventPlan;
+  /** Handler invoked to persist the current event plan to localStorage */
   onSavePlan: () => void;
 }
 
-export const ExportPanel: React.FC<ExportPanelProps> = ({ plan, onSavePlan }) => {
-  const [saveSuccess, setSaveSuccess] = useState(false);
+/**
+ * Export panel giving users the ability to download, print, or store their plan.
+ *
+ * @param props - Component properties
+ * @returns Action cards for various export targets
+ */
+const ExportPanelComponent: React.FC<ExportPanelProps> = ({ plan, onSavePlan }) => {
+  const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
 
-  const handleSave = () => {
+  const handleSave = useCallback((): void => {
     onSavePlan();
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
-  };
+  }, [onSavePlan]);
 
-  const handleExportJSON = () => {
+  const handleExportJSON = useCallback((): void => {
     const dataStr =
       'data:text/json;charset=utf-8,' +
       encodeURIComponent(JSON.stringify(plan, null, 2));
@@ -44,9 +56,9 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ plan, onSavePlan }) =>
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-  };
+  }, [plan]);
 
-  const generateMarkdown = (): string => {
+  const generateMarkdown = useCallback((): string => {
     const totalAllocated = plan.budget.reduce((s, b) => s + b.allocated, 0);
     const totalActual = plan.budget.reduce((s, b) => s + b.actual, 0);
 
@@ -141,9 +153,9 @@ ${m.items.map((i) => `- ${i}`).join('\n')}
 ---
 *Exported with AuraPlan AI — High-Efficiency Event Planning*
 `;
-  };
+  }, [plan]);
 
-  const handleExportMarkdown = () => {
+  const handleExportMarkdown = useCallback((): void => {
     const md = generateMarkdown();
     const dataStr =
       'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
@@ -156,11 +168,11 @@ ${m.items.map((i) => `- ${i}`).join('\n')}
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-  };
+  }, [generateMarkdown, plan.eventInput.eventType]);
 
-  const handlePrint = () => {
+  const handlePrint = useCallback((): void => {
     window.print();
-  };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -189,6 +201,7 @@ ${m.items.map((i) => `- ${i}`).join('\n')}
             </p>
           </div>
           <button
+            type="button"
             onClick={handleSave}
             className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-aura-500 ${
               saveSuccess
@@ -222,6 +235,7 @@ ${m.items.map((i) => `- ${i}`).join('\n')}
             </p>
           </div>
           <button
+            type="button"
             onClick={handleExportMarkdown}
             className="w-full py-2.5 px-3 rounded-xl text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-800 transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-surface-400"
           >
@@ -242,6 +256,7 @@ ${m.items.map((i) => `- ${i}`).join('\n')}
             </p>
           </div>
           <button
+            type="button"
             onClick={handleExportJSON}
             className="w-full py-2.5 px-3 rounded-xl text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-800 transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-surface-400"
           >
@@ -262,6 +277,7 @@ ${m.items.map((i) => `- ${i}`).join('\n')}
             </p>
           </div>
           <button
+            type="button"
             onClick={handlePrint}
             className="w-full py-2.5 px-3 rounded-xl text-xs font-bold bg-surface-100 hover:bg-surface-200 text-surface-800 transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-surface-400"
           >
@@ -273,3 +289,8 @@ ${m.items.map((i) => `- ${i}`).join('\n')}
     </div>
   );
 };
+
+ExportPanelComponent.displayName = 'ExportPanel';
+
+export const ExportPanel = React.memo(ExportPanelComponent);
+export default ExportPanel;

@@ -2,11 +2,12 @@
  * Smart Vendor Checklist component.
  * Displays tailored vendor categories with AI-generated negotiation tips,
  * vetting questions, status tracking, and cost estimates.
+ * Optimized with useMemo, useCallback, and React.memo.
  *
  * @module VendorChecklist
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   Store,
   HelpCircle,
@@ -17,13 +18,32 @@ import {
 import type { VendorItem, VendorStatus } from '@/types/event';
 import { Badge } from './ui/Badge';
 import { formatCurrency } from '@/utils/calculations';
+import { VENDOR_STATUS } from '@/utils/constants';
 
-interface VendorChecklistProps {
+/**
+ * Props for VendorChecklist component.
+ */
+export interface VendorChecklistProps {
+  /** Array of vendor categories with vetting questions and tips */
   vendors: VendorItem[];
+  /** Callback fired to update an individual vendor record */
   onUpdateVendor: (id: string, updates: Partial<VendorItem>) => void;
 }
 
-export const VendorChecklist: React.FC<VendorChecklistProps> = ({
+const statusOptions: Array<{ value: VendorStatus; label: string }> = [
+  { value: VENDOR_STATUS.NOT_CONTACTED, label: 'Not Contacted' },
+  { value: VENDOR_STATUS.CONTACTED, label: 'Contacted' },
+  { value: VENDOR_STATUS.BOOKED, label: 'Booked' },
+  { value: VENDOR_STATUS.CONFIRMED, label: 'Confirmed' },
+];
+
+/**
+ * Interactive Vendor Checklist component.
+ *
+ * @param props - Component properties
+ * @returns Curated vendor list with accordion expanders and negotiation tips
+ */
+const VendorChecklistComponent: React.FC<VendorChecklistProps> = ({
   vendors,
   onUpdateVendor,
 }) => {
@@ -31,11 +51,24 @@ export const VendorChecklist: React.FC<VendorChecklistProps> = ({
     vendors[0]?.id || null
   );
 
-  const toggleExpand = (id: string) => {
-    setExpandedVendorId(expandedVendorId === id ? null : id);
-  };
+  const toggleExpand = useCallback((id: string): void => {
+    setExpandedVendorId((prev) => (prev === id ? null : id));
+  }, []);
 
-  const getStatusBadge = (status: VendorStatus) => {
+  const totalEstimatedCost = useMemo(
+    () => vendors.reduce((sum, v) => sum + v.estimatedCost, 0),
+    [vendors]
+  );
+
+  const bookedCount = useMemo(
+    () =>
+      vendors.filter(
+        (v) => v.status === VENDOR_STATUS.BOOKED || v.status === VENDOR_STATUS.CONFIRMED
+      ).length,
+    [vendors]
+  );
+
+  const getStatusBadge = useCallback((status: VendorStatus) => {
     switch (status) {
       case 'confirmed':
         return <Badge variant="success">Confirmed</Badge>;
@@ -44,21 +77,10 @@ export const VendorChecklist: React.FC<VendorChecklistProps> = ({
       case 'contacted':
         return <Badge variant="warning">Contacted</Badge>;
       case 'not-contacted':
+      default:
         return <Badge variant="neutral">Not Contacted</Badge>;
     }
-  };
-
-  const statusOptions: { value: VendorStatus; label: string }[] = [
-    { value: 'not-contacted', label: 'Not Contacted' },
-    { value: 'contacted', label: 'Contacted' },
-    { value: 'booked', label: 'Booked' },
-    { value: 'confirmed', label: 'Confirmed' },
-  ];
-
-  const totalEstimatedCost = vendors.reduce((sum, v) => sum + v.estimatedCost, 0);
-  const bookedCount = vendors.filter(
-    (v) => v.status === 'booked' || v.status === 'confirmed'
-  ).length;
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -149,6 +171,7 @@ export const VendorChecklist: React.FC<VendorChecklistProps> = ({
                   </select>
 
                   <button
+                    type="button"
                     aria-label={isExpanded ? 'Collapse vendor details' : 'Expand vendor details'}
                     className="p-1 text-surface-400 hover:text-surface-700"
                   >
@@ -246,3 +269,8 @@ export const VendorChecklist: React.FC<VendorChecklistProps> = ({
     </div>
   );
 };
+
+VendorChecklistComponent.displayName = 'VendorChecklist';
+
+export const VendorChecklist = React.memo(VendorChecklistComponent);
+export default VendorChecklist;

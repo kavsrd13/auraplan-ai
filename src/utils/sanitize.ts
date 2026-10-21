@@ -97,6 +97,7 @@ export function sanitizeHTML(input: string): string {
  */
 export function sanitizeForPrompt(input: string): string {
   // Strip control characters (except newline, carriage return, tab)
+  // eslint-disable-next-line no-control-regex -- Explicitly stripping non-printable control characters for prompt injection and terminal attack defense
   let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
   // Escape XML delimiters to prevent prompt injection

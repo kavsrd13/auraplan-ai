@@ -82,25 +82,25 @@ describe('App Component Integration & A11y', () => {
     const timelineTab = screen.getByRole('tab', { name: /timeline/i });
     fireEvent.click(timelineTab);
     expect(timelineTab).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByText(/Chronological Run-of-Show/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Chronological Run-of-Show/i)).toBeInTheDocument();
 
     // Switch to Vendor Checklist tab
     const vendorTab = screen.getByRole('tab', { name: /vendor/i });
     fireEvent.click(vendorTab);
     expect(vendorTab).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByText(/Vendor Directory & Vetting Suite/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Vendor Directory & Vetting Suite/i)).toBeInTheDocument();
 
     // Switch to Ideas tab
     const ideasTab = screen.getByRole('tab', { name: /ideas/i });
     fireEvent.click(ideasTab);
     expect(ideasTab).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByText(/Curated Themes & Color Palettes/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Curated Themes & Color Palettes/i)).toBeInTheDocument();
 
     // Switch to Export tab
     const exportTab = screen.getByRole('tab', { name: /export/i });
     fireEvent.click(exportTab);
     expect(exportTab).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByText(/Export & Persistence Hub/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Export & Persistence Hub/i)).toBeInTheDocument();
   });
 
   it('opens and closes the API key configuration modal cleanly', async () => {

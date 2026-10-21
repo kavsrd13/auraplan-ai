@@ -2,11 +2,12 @@
  * Interactive "Ask AI Co-Planner" refinement chat component.
  * Allows users to converse with Gemini to adjust budgets, ask for vendor advice,
  * or refine timelines with instant suggestions.
+ * Optimized with useCallback, useMemo, and React.memo.
  *
  * @module AIChatPanel
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   Send,
   Loader2,
@@ -18,76 +19,96 @@ import {
 import type { ChatMessage, EventPlan } from '@/types/event';
 import { chatWithAI } from '@/services/aiService';
 
-interface AIChatPanelProps {
+/**
+ * Props for the AIChatPanel component.
+ */
+export interface AIChatPanelProps {
+  /** Complete active event plan context provided to the LLM */
   currentPlan: EventPlan;
+  /** Gemini API key string or empty */
   apiKey: string;
+  /** Array of conversational messages */
   messages: ChatMessage[];
+  /** Handler to append a message to chat state */
   onAddMessage: (msg: ChatMessage) => void;
 }
 
-export const AIChatPanel: React.FC<AIChatPanelProps> = ({
+/**
+ * Real-time AI chat co-planner sidebar panel.
+ *
+ * @param props - Component properties
+ * @returns AI conversation landmark panel
+ */
+const AIChatPanelComponent: React.FC<AIChatPanelProps> = ({
   currentPlan,
   apiKey,
   messages,
   onAddMessage,
 }) => {
-  const [input, setInput] = useState('');
-  const [isSending, setIsSending] = useState(false);
+  const [input, setInput] = useState<string>('');
+  const [isSending, setIsSending] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback((): void => {
     if (typeof messagesEndRef.current?.scrollIntoView === 'function') {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  const handleSendMessage = async (textToSend?: string) => {
-    const query = (textToSend || input).trim();
-    if (!query || isSending) return;
+  const samplePrompts = useMemo(
+    () => [
+      'How can I cut $2,500 from catering without sacrificing quality?',
+      'What weather backup plan should we have for an outdoor ceremony?',
+      'Draft a speech schedule and toast order for the reception.',
+      'Suggest signature his & hers mocktail recipes for non-drinkers.',
+    ],
+    []
+  );
 
-    const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: query,
-      timestamp: new Date().toISOString(),
-    };
+  const handleSendMessage = useCallback(
+    async (textToSend?: string): Promise<void> => {
+      const query = (textToSend || input).trim();
+      if (!query || isSending) return;
 
-    onAddMessage(userMessage);
-    setInput('');
-    setIsSending(true);
-
-    try {
-      const response = await chatWithAI(query, currentPlan, apiKey);
-      const assistantMessage: ChatMessage = {
-        id: `assistant-${Date.now()}`,
-        role: 'assistant',
-        content: response,
+      const userMessage: ChatMessage = {
+        id: `user-${Date.now()}`,
+        role: 'user',
+        content: query,
         timestamp: new Date().toISOString(),
       };
-      onAddMessage(assistantMessage);
-    } catch {
-      const errorMessage: ChatMessage = {
-        id: `assistant-err-${Date.now()}`,
-        role: 'assistant',
-        content: 'Unable to communicate with Gemini at this time. Please check your API key or network connection.',
-        timestamp: new Date().toISOString(),
-      };
-      onAddMessage(errorMessage);
-    } finally {
-      setIsSending(false);
-    }
-  };
 
-  const samplePrompts = [
-    'How can I cut $2,500 from catering without sacrificing quality?',
-    'What weather backup plan should we have for an outdoor ceremony?',
-    'Draft a speech schedule and toast order for the reception.',
-    'Suggest signature his & hers mocktail recipes for non-drinkers.',
-  ];
+      onAddMessage(userMessage);
+      setInput('');
+      setIsSending(true);
+
+      try {
+        const response = await chatWithAI(query, currentPlan, apiKey);
+        const assistantMessage: ChatMessage = {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: response,
+          timestamp: new Date().toISOString(),
+        };
+        onAddMessage(assistantMessage);
+      } catch {
+        const errorMessage: ChatMessage = {
+          id: `assistant-err-${Date.now()}`,
+          role: 'assistant',
+          content:
+            'Unable to communicate with Gemini at this time. Please check your API key or network connection.',
+          timestamp: new Date().toISOString(),
+        };
+        onAddMessage(errorMessage);
+      } finally {
+        setIsSending(false);
+      }
+    },
+    [input, isSending, onAddMessage, currentPlan, apiKey]
+  );
 
   return (
     <aside
@@ -229,3 +250,8 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
     </aside>
   );
 };
+
+AIChatPanelComponent.displayName = 'AIChatPanel';
+
+export const AIChatPanel = React.memo(AIChatPanelComponent);
+export default AIChatPanel;

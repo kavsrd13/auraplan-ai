@@ -3,6 +3,7 @@ import type {
   EventType,
   TimelineMilestone,
 } from '@/types/event';
+import { MILESTONE_STATUS } from '@/utils/constants';
 
 /**
  * Default budget allocation percentages per event type.
@@ -190,7 +191,7 @@ export function getUpcomingMilestones(
   cutoff.setDate(cutoff.getDate() + daysAhead);
 
   return milestones.filter((milestone) => {
-    if (milestone.status === 'completed') {
+    if (milestone.status === MILESTONE_STATUS.COMPLETED) {
       return false;
     }
     const dueDate = new Date(milestone.dueDate);
