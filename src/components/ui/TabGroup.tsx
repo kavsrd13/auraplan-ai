@@ -14,13 +14,13 @@ import React, { useRef, useCallback } from 'react';
  */
 export interface TabItem {
   /** Unique identifier for the tab */
-  id: string;
+  readonly id: string;
   /** Human-readable tab title */
-  label: string;
+  readonly label: string;
   /** Optional SVG icon element */
-  icon?: React.ReactNode;
+  readonly icon?: React.ReactNode;
   /** Optional badge count or status string */
-  badge?: number | string;
+  readonly badge?: number | string;
 }
 
 /**
@@ -28,13 +28,13 @@ export interface TabItem {
  */
 export interface TabGroupProps {
   /** Array of tab definitions */
-  tabs: TabItem[];
+  readonly tabs: TabItem[];
   /** Identifier of the currently active tab */
-  activeTab: string;
+  readonly activeTab: string;
   /** Callback fired when a tab is selected */
-  onTabChange: (tabId: string) => void;
+  readonly onTabChange: (tabId: string) => void;
   /** Accessible label describing the navigation group */
-  ariaLabel: string;
+  readonly ariaLabel: string;
 }
 
 /**
@@ -42,6 +42,16 @@ export interface TabGroupProps {
  *
  * @param props - Component properties
  * @returns Tablist navigation container element
+ *
+ * @example
+ * ```tsx
+ * <TabGroup
+ *   tabs={[{ id: 'budget', label: 'Budget' }]}
+ *   activeTab="budget"
+ *   onTabChange={setActiveTab}
+ *   ariaLabel="Sections"
+ * />
+ * ```
  */
 const TabGroupComponent: React.FC<TabGroupProps> = ({
   tabs,

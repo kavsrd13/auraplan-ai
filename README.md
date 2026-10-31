@@ -263,7 +263,7 @@ npm run test:watch
 npm run test:coverage
 ```
 
-### Test Coverage Highlights (11 Suites / 83+ Tests)
+### Test Coverage Highlights (11 Suites / 88 Tests)
 1. `src/__tests__/calculations.test.ts`
    * Percentage budget allocations for Wedding, Birthday, and Community events.
    * Total allocated vs. actual spend calculations and budget utilization percentages.
@@ -296,7 +296,7 @@ npm run test:coverage
 10. `src/__tests__/ExportPanel.test.tsx`
     * 1-click Markdown export generation, raw JSON schema download, and print view.
 11. `src/__tests__/constants.test.ts`
-    * Centralized enums, threshold bounds, storage keys, and limits validation.
+    * Centralized enums, threshold bounds, storage keys, time constants, and UI limits validation.
 
 ---
 

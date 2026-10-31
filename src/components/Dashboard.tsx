@@ -26,12 +26,11 @@ import type {
   VendorItem,
   ChatMessage,
 } from '@/types/event';
-import { TabGroup, type TabItem } from './ui/TabGroup';
+import { TabGroup, type TabItem } from './ui';
 import { AIChatPanel } from './AIChatPanel';
 import { SkeletonLoader } from './SkeletonLoader';
 import { ErrorBoundary } from './ErrorBoundary';
-import { formatCurrency } from '@/utils/calculations';
-import { DASHBOARD_TABS } from '@/utils/constants';
+import { formatCurrency, DASHBOARD_TABS } from '@/utils';
 
 // Code-split heavy dashboard tab components with React.lazy
 const BudgetTracker = React.lazy(() => import('./BudgetTracker'));
@@ -45,25 +44,25 @@ const ExportPanel = React.lazy(() => import('./ExportPanel'));
  */
 export interface DashboardProps {
   /** Complete active event plan */
-  plan: EventPlan;
+  readonly plan: EventPlan;
   /** Currently active tab identifier */
-  activeTab: DashboardTab;
+  readonly activeTab: DashboardTab;
   /** Callback fired when user switches active tab */
-  onTabChange: (tab: DashboardTab) => void;
+  readonly onTabChange: (tab: DashboardTab) => void;
   /** Callback to update a specific budget category */
-  onUpdateBudget: (index: number, updates: Partial<BudgetCategory>) => void;
+  readonly onUpdateBudget: (index: number, updates: Partial<BudgetCategory>) => void;
   /** Callback to update a milestone by ID */
-  onUpdateMilestone: (id: string, updates: Partial<TimelineMilestone>) => void;
+  readonly onUpdateMilestone: (id: string, updates: Partial<TimelineMilestone>) => void;
   /** Callback to update a vendor by ID */
-  onUpdateVendor: (id: string, updates: Partial<VendorItem>) => void;
+  readonly onUpdateVendor: (id: string, updates: Partial<VendorItem>) => void;
   /** Callback to persist plan to localStorage */
-  onSavePlan: () => void;
+  readonly onSavePlan: () => void;
   /** Gemini API key string or empty */
-  apiKey: string;
+  readonly apiKey: string;
   /** Chat history array */
-  chatMessages: ChatMessage[];
+  readonly chatMessages: ChatMessage[];
   /** Callback to append a new message to chat state */
-  onAddChatMessage: (msg: ChatMessage) => void;
+  readonly onAddChatMessage: (msg: ChatMessage) => void;
 }
 
 /**
@@ -71,6 +70,22 @@ export interface DashboardProps {
  *
  * @param props - Component properties
  * @returns Master planning dashboard interface
+ *
+ * @example
+ * ```tsx
+ * <Dashboard
+ *   plan={currentPlan}
+ *   activeTab={activeTab}
+ *   onTabChange={setTab}
+ *   onUpdateBudget={updateBudget}
+ *   onUpdateMilestone={updateMilestone}
+ *   onUpdateVendor={updateVendor}
+ *   onSavePlan={savePlan}
+ *   apiKey={apiKey}
+ *   chatMessages={chatMessages}
+ *   onAddChatMessage={addChatMessage}
+ * />
+ * ```
  */
 const DashboardComponent: React.FC<DashboardProps> = ({
   plan,

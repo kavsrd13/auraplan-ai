@@ -8,6 +8,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import type { EventFormInput, EventType } from '@/types/event';
 import { validateEventForm } from '@/utils/validation';
+import { TIME_CONSTANTS, FORM_DEFAULTS } from '@/utils/constants';
 
 export interface PresetData {
   eventType: EventType;
@@ -57,15 +58,16 @@ export function useFormValidation(
   onSubmit: (input: EventFormInput) => void,
   initialValues?: Partial<EventFormInput>
 ): UseFormValidationReturn {
-  const tomorrow = useMemo(() => {
-    return new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  // Calculate tomorrow's date using named time constant to avoid magic number
+  const tomorrow = useMemo((): string => {
+    return new Date(Date.now() + TIME_CONSTANTS.MS_PER_DAY).toISOString().split('T')[0];
   }, []);
 
   const [formData, setFormData] = useState<EventFormInput>({
-    eventType: initialValues?.eventType || 'wedding',
+    eventType: initialValues?.eventType || FORM_DEFAULTS.EVENT_TYPE,
     theme: initialValues?.theme || '',
-    guestCount: initialValues?.guestCount || 100,
-    totalBudget: initialValues?.totalBudget || 25000,
+    guestCount: initialValues?.guestCount || FORM_DEFAULTS.GUEST_COUNT,
+    totalBudget: initialValues?.totalBudget || FORM_DEFAULTS.TOTAL_BUDGET,
     eventDate: initialValues?.eventDate || tomorrow,
     location: initialValues?.location || '',
     dietaryPreferences: initialValues?.dietaryPreferences || '',

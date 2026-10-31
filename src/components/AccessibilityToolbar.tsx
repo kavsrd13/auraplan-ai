@@ -19,6 +19,11 @@ export type TextScaleOption = 'normal' | 'large' | 'larger';
  * Accessible toolbar component rendering controls for visual adjustments.
  *
  * @returns Accessibility settings banner landmark
+ *
+ * @example
+ * ```tsx
+ * <AccessibilityToolbar />
+ * ```
  */
 const AccessibilityToolbarComponent: React.FC = () => {
   const [highContrast, setHighContrast] = useState<boolean>(false);

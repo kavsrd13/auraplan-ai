@@ -17,21 +17,21 @@ import type { AppView } from '@/types/event';
  */
 export interface LayoutProps {
   /** Page or modal content nested inside the layout landmark */
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
   /** Active primary application view mode ('form' or 'dashboard') */
-  view: AppView;
+  readonly view: AppView;
   /** Whether an active event plan is currently loaded in state */
-  hasPlan?: boolean;
+  readonly hasPlan?: boolean;
   /** Active Gemini API key string or empty */
-  apiKey: string;
+  readonly apiKey: string;
   /** Handler invoked to open API key configuration dialog */
-  onOpenApiKeyModal: () => void;
+  readonly onOpenApiKeyModal: () => void;
   /** Handler to load sample demonstration event data */
-  onLoadDemo: () => void;
+  readonly onLoadDemo: () => void;
   /** Handler to start a fresh event planning session */
-  onNewPlan: () => void;
+  readonly onNewPlan: () => void;
   /** Optional title of the currently loaded plan for header display */
-  eventTitle?: string;
+  readonly eventTitle?: string;
 }
 
 /**
@@ -39,6 +39,13 @@ export interface LayoutProps {
  *
  * @param props - Component properties
  * @returns Landmark-rich layout hierarchy
+ *
+ * @example
+ * ```tsx
+ * <Layout view="dashboard" apiKey={apiKey} onOpenApiKeyModal={handleOpen} onLoadDemo={handleDemo} onNewPlan={handleNew}>
+ *   <Dashboard ... />
+ * </Layout>
+ * ```
  */
 const LayoutComponent: React.FC<LayoutProps> = ({
   children,

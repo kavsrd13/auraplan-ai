@@ -108,3 +108,5 @@ export function useDebouncedCallback<T extends (...args: never[]) => void>(
 
   return debouncedFn;
 }
+
+export default useDebounce;

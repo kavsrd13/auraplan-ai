@@ -16,7 +16,7 @@ export type VendorStatus = 'not-contacted' | 'contacted' | 'booked' | 'confirmed
 /** A single budget category with allocated, estimated, and actual amounts. */
 export interface BudgetCategory {
   /** Name of the budget category (e.g., "Venue", "Catering"). */
-  category: string;
+  readonly category: string;
   /** Amount allocated from the total budget. */
   allocated: number;
   /** Estimated cost for this category. */
@@ -30,7 +30,7 @@ export interface BudgetCategory {
 /** A milestone in the event planning timeline. */
 export interface TimelineMilestone {
   /** Unique identifier for the milestone. */
-  id: string;
+  readonly id: string;
   /** Title of the milestone. */
   title: string;
   /** Detailed description of what needs to be done. */
@@ -46,7 +46,7 @@ export interface TimelineMilestone {
 /** A vendor entry in the event plan. */
 export interface VendorItem {
   /** Unique identifier for the vendor entry. */
-  id: string;
+  readonly id: string;
   /** Vendor service category (e.g., "Photography", "Catering"). */
   category: string;
   /** Name of the vendor or business. */
@@ -112,9 +112,9 @@ export interface IdeaBoard {
 /** Complete event plan with all planning data. */
 export interface EventPlan {
   /** Unique identifier for the event plan. */
-  id: string;
+  readonly id: string;
   /** ISO 8601 timestamp of when the plan was created. */
-  createdAt: string;
+  readonly createdAt: string;
   /** ISO 8601 timestamp of the last update. */
   updatedAt: string;
   /** Original user input that generated this plan. */
@@ -152,13 +152,13 @@ export interface EventFormInput {
 /** A single message in the AI chat conversation. */
 export interface ChatMessage {
   /** Unique identifier for the message. */
-  id: string;
+  readonly id: string;
   /** Who sent the message. */
-  role: 'user' | 'assistant';
+  readonly role: 'user' | 'assistant';
   /** The message text content. */
-  content: string;
+  readonly content: string;
   /** ISO 8601 timestamp of when the message was sent. */
-  timestamp: string;
+  readonly timestamp: string;
 }
 
 // ===== AI Response Schema =====

@@ -29,11 +29,11 @@ import { useBudgetEditor } from '@/hooks/useBudgetEditor';
  */
 export interface BudgetTrackerProps {
   /** Total event budget cap defined by user */
-  totalBudget: number;
+  readonly totalBudget: number;
   /** Array of categorized budget items */
-  budget: BudgetCategory[];
+  readonly budget: BudgetCategory[];
   /** Handler to persist updates to an individual budget category */
-  onUpdateCategory: (index: number, updates: Partial<BudgetCategory>) => void;
+  readonly onUpdateCategory: (index: number, updates: Partial<BudgetCategory>) => void;
 }
 
 /**
@@ -41,6 +41,15 @@ export interface BudgetTrackerProps {
  *
  * @param props - Component properties
  * @returns Dashboard section rendering budget metrics, progress bars, and inline editing
+ *
+ * @example
+ * ```tsx
+ * <BudgetTracker
+ *   totalBudget={10000}
+ *   budget={plan.budget}
+ *   onUpdateCategory={handleUpdateBudget}
+ * />
+ * ```
  */
 const BudgetTrackerComponent: React.FC<BudgetTrackerProps> = ({
   totalBudget,

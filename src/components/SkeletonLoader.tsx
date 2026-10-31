@@ -18,7 +18,7 @@ export type SkeletonType = 'budget' | 'timeline' | 'vendors' | 'ideas' | 'genera
  */
 export interface SkeletonLoaderProps {
   /** Layout structure variant to display */
-  type?: SkeletonType;
+  readonly type?: SkeletonType;
 }
 
 /**
@@ -26,6 +26,11 @@ export interface SkeletonLoaderProps {
  *
  * @param props - Component properties
  * @returns Animated pulse skeleton placeholder
+ *
+ * @example
+ * ```tsx
+ * <SkeletonLoader type="budget" />
+ * ```
  */
 const SkeletonLoaderComponent: React.FC<SkeletonLoaderProps> = ({ type = 'general' }) => {
   return (

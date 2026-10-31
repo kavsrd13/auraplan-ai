@@ -14,9 +14,9 @@ import React from 'react';
  */
 export interface SkipLinkProps {
   /** Target HTML ID of the primary content landmark (default: 'main-content') */
-  targetId?: string;
+  readonly targetId?: string;
   /** Accessible label displayed when link receives keyboard focus */
-  label?: string;
+  readonly label?: string;
 }
 
 /**
@@ -24,6 +24,11 @@ export interface SkipLinkProps {
  *
  * @param props - Component properties
  * @returns Skip anchor element
+ *
+ * @example
+ * ```tsx
+ * <SkipLink targetId="main-content" label="Skip to content" />
+ * ```
  */
 const SkipLinkComponent: React.FC<SkipLinkProps> = ({
   targetId = 'main-content',

@@ -25,19 +25,19 @@ export type ProgressBarSize = 'sm' | 'md' | 'lg';
  */
 export interface ProgressBarProps {
   /** Numeric progress value */
-  value: number;
+  readonly value: number;
   /** Maximum progress capacity (default: 100) */
-  max?: number;
+  readonly max?: number;
   /** Accessible label describing what the bar measures */
-  label: string;
+  readonly label: string;
   /** Whether to render textual percentage indicator */
-  showPercent?: boolean;
+  readonly showPercent?: boolean;
   /** Height dimension */
-  size?: ProgressBarSize;
+  readonly size?: ProgressBarSize;
   /** Theme color variant or 'auto' for threshold-based colors */
-  variant?: ProgressBarVariant;
+  readonly variant?: ProgressBarVariant;
   /** Optional extra Tailwind CSS classes */
-  className?: string;
+  readonly className?: string;
 }
 
 const heightClasses: Record<ProgressBarSize, string> = {
@@ -51,6 +51,11 @@ const heightClasses: Record<ProgressBarSize, string> = {
  *
  * @param props - Component properties
  * @returns Stylized accessible progress bar element
+ *
+ * @example
+ * ```tsx
+ * <ProgressBar value={75} max={100} label="Budget spent" showPercent />
+ * ```
  */
 const ProgressBarComponent: React.FC<ProgressBarProps> = ({
   value,

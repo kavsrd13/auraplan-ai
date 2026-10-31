@@ -17,15 +17,16 @@ import {
 } from 'lucide-react';
 import type { EventPlan } from '@/types/event';
 import { formatCurrency } from '@/utils/calculations';
+import { EXPORT_CONFIG, UI_FEEDBACK_DURATION } from '@/utils/constants';
 
 /**
  * Props for the ExportPanel component.
  */
 export interface ExportPanelProps {
   /** Complete active event plan */
-  plan: EventPlan;
+  readonly plan: EventPlan;
   /** Handler invoked to persist the current event plan to localStorage */
-  onSavePlan: () => void;
+  readonly onSavePlan: () => void;
 }
 
 /**
@@ -33,6 +34,11 @@ export interface ExportPanelProps {
  *
  * @param props - Component properties
  * @returns Action cards for various export targets
+ *
+ * @example
+ * ```tsx
+ * <ExportPanel plan={currentPlan} onSavePlan={handleSave} />
+ * ```
  */
 const ExportPanelComponent: React.FC<ExportPanelProps> = ({ plan, onSavePlan }) => {
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
@@ -40,18 +46,18 @@ const ExportPanelComponent: React.FC<ExportPanelProps> = ({ plan, onSavePlan }) 
   const handleSave = useCallback((): void => {
     onSavePlan();
     setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    setTimeout(() => setSaveSuccess(false), UI_FEEDBACK_DURATION.SAVE_FEEDBACK_MS);
   }, [onSavePlan]);
 
   const handleExportJSON = useCallback((): void => {
-    const dataStr =
-      'data:text/json;charset=utf-8,' +
-      encodeURIComponent(JSON.stringify(plan, null, 2));
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(
+      JSON.stringify(plan, null, EXPORT_CONFIG.JSON_INDENT)
+    )}`;
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
     downloadAnchor.setAttribute(
       'download',
-      `auraplan-${plan.eventInput.eventType}-${Date.now()}.json`
+      `${EXPORT_CONFIG.FILENAME_PREFIX}${plan.eventInput.eventType}-${Date.now()}.json`
     );
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
@@ -157,13 +163,12 @@ ${m.items.map((i) => `- ${i}`).join('\n')}
 
   const handleExportMarkdown = useCallback((): void => {
     const md = generateMarkdown();
-    const dataStr =
-      'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
+    const dataStr = `data:text/markdown;charset=utf-8,${encodeURIComponent(md)}`;
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
     downloadAnchor.setAttribute(
       'download',
-      `auraplan-${plan.eventInput.eventType}-${Date.now()}.md`
+      `${EXPORT_CONFIG.FILENAME_PREFIX}${plan.eventInput.eventType}-${Date.now()}.md`
     );
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();

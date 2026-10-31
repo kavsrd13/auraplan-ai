@@ -76,7 +76,7 @@ export const STORAGE_KEYS = {
  */
 export const INPUT_LIMITS = {
   THEME_MIN_LENGTH: 3,
-  THEME_MAX_LENGTH: 200,
+  THEME_MAX_LENGTH: 500,
   LOCATION_MIN_LENGTH: 2,
   LOCATION_MAX_LENGTH: 200,
   PREFERENCES_MAX_LENGTH: 500,
@@ -107,3 +107,55 @@ export const STANDARD_BUDGET_CATEGORIES = [
   'Entertainment & Media',
   'Miscellaneous & Contingency',
 ] as const;
+
+/**
+ * Time conversion constants to eliminate magic numbers throughout the codebase.
+ */
+export const TIME_CONSTANTS = {
+  /** Milliseconds in one day (24 × 60 × 60 × 1000). */
+  MS_PER_DAY: 86_400_000,
+  /** Number of hours in one day. */
+  HOURS_PER_DAY: 24,
+  /** Number of seconds in one minute. */
+  SECONDS_PER_MINUTE: 60,
+} as const;
+
+/**
+ * UI timing constants for transient feedback states (toasts, clipboard, etc.).
+ */
+export const UI_FEEDBACK_DURATION = {
+  /** Duration (ms) to show clipboard copy success indicators. */
+  CLIPBOARD_FEEDBACK_MS: 2000,
+  /** Duration (ms) to show save-success indicators. */
+  SAVE_FEEDBACK_MS: 3000,
+} as const;
+
+/**
+ * Timeline-related thresholds for visual urgency indicators.
+ */
+export const TIMELINE_THRESHOLDS = {
+  /** Days from event to display amber "upcoming" warning badge. */
+  DAYS_WARNING: 7,
+} as const;
+
+/**
+ * Default values used when initializing the event creation form.
+ */
+export const FORM_DEFAULTS = {
+  /** Default event type selection. */
+  EVENT_TYPE: 'wedding' as const,
+  /** Default guest count. */
+  GUEST_COUNT: 100,
+  /** Default total budget in USD. */
+  TOTAL_BUDGET: 25000,
+} as const;
+
+/**
+ * Export and file naming conventions.
+ */
+export const EXPORT_CONFIG = {
+  /** File name prefix for exported plan files. */
+  FILENAME_PREFIX: 'auraplan-',
+  /** JSON indentation depth for pretty-printed exports. */
+  JSON_INDENT: 2,
+} as const;

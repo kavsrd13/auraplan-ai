@@ -26,12 +26,12 @@ import { VENDOR_STATUS } from '@/utils/constants';
  */
 export interface VendorChecklistProps {
   /** Array of vendor categories with vetting questions and tips */
-  vendors: VendorItem[];
+  readonly vendors: VendorItem[];
   /** Callback fired to update an individual vendor record */
-  onUpdateVendor: (id: string, updates: Partial<VendorItem>) => void;
+  readonly onUpdateVendor: (id: string, updates: Partial<VendorItem>) => void;
 }
 
-const statusOptions: Array<{ value: VendorStatus; label: string }> = [
+const statusOptions: ReadonlyArray<{ readonly value: VendorStatus; readonly label: string }> = [
   { value: VENDOR_STATUS.NOT_CONTACTED, label: 'Not Contacted' },
   { value: VENDOR_STATUS.CONTACTED, label: 'Contacted' },
   { value: VENDOR_STATUS.BOOKED, label: 'Booked' },
@@ -43,6 +43,11 @@ const statusOptions: Array<{ value: VendorStatus; label: string }> = [
  *
  * @param props - Component properties
  * @returns Curated vendor list with accordion expanders and negotiation tips
+ *
+ * @example
+ * ```tsx
+ * <VendorChecklist vendors={plan.vendors} onUpdateVendor={handleUpdateVendor} />
+ * ```
  */
 const VendorChecklistComponent: React.FC<VendorChecklistProps> = ({
   vendors,

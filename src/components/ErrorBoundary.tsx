@@ -17,32 +17,39 @@ export interface ErrorBoundaryProps {
   /**
    * Sub-tree wrapped by the error boundary.
    */
-  children: ReactNode;
+  readonly children: ReactNode;
   /**
    * Optional custom fallback renderer function or ReactNode.
    */
-  fallback?: ReactNode | ((error: Error, reset: () => void) => ReactNode);
+  readonly fallback?: ReactNode | ((error: Error, reset: () => void) => ReactNode);
   /**
    * Optional callback triggered when an error is caught.
    */
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  readonly onError?: (error: Error, errorInfo: ErrorInfo) => void;
   /**
    * Optional reset callback invoked when user clicks try again.
    */
-  onReset?: () => void;
+  readonly onReset?: () => void;
 }
 
 /**
  * Internal state for ErrorBoundary.
  */
 export interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-  errorInfo: ErrorInfo | null;
+  readonly hasError: boolean;
+  readonly error: Error | null;
+  readonly errorInfo: ErrorInfo | null;
 }
 
 /**
  * Class-based Error Boundary adhering to React specifications.
+ *
+ * @example
+ * ```tsx
+ * <ErrorBoundary fallback={<p>Something failed.</p>}>
+ *   <Dashboard />
+ * </ErrorBoundary>
+ * ```
  */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   public static displayName = 'ErrorBoundary';

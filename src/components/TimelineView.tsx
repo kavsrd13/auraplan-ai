@@ -19,18 +19,18 @@ import {
 import type { TimelineMilestone, TaskStatus } from '@/types/event';
 import { Badge } from './ui/Badge';
 import { calculateDaysUntil } from '@/utils/calculations';
-import { MILESTONE_STATUS } from '@/utils/constants';
+import { MILESTONE_STATUS, TIMELINE_THRESHOLDS } from '@/utils/constants';
 
 /**
  * Props for TimelineView component.
  */
 export interface TimelineViewProps {
   /** List of chronologically sorted milestones */
-  timeline: TimelineMilestone[];
+  readonly timeline: TimelineMilestone[];
   /** Target event date string in ISO format (YYYY-MM-DD) */
-  eventDate: string;
+  readonly eventDate: string;
   /** Callback to update a milestone by ID */
-  onUpdateMilestone: (id: string, updates: Partial<TimelineMilestone>) => void;
+  readonly onUpdateMilestone: (id: string, updates: Partial<TimelineMilestone>) => void;
 }
 
 /**
@@ -38,6 +38,15 @@ export interface TimelineViewProps {
  *
  * @param props - Component properties
  * @returns Milestone tracker UI with filtering and status transitions
+ *
+ * @example
+ * ```tsx
+ * <TimelineView
+ *   timeline={plan.timeline}
+ *   eventDate={plan.eventInput.eventDate}
+ *   onUpdateMilestone={handleUpdateMilestone}
+ * />
+ * ```
  */
 const TimelineViewComponent: React.FC<TimelineViewProps> = ({
   timeline,
@@ -299,7 +308,7 @@ const TimelineViewComponent: React.FC<TimelineViewProps> = ({
                     className={`font-semibold ${
                       daysUntil < 0
                         ? 'text-danger-600'
-                        : daysUntil <= 7
+                        : daysUntil <= TIMELINE_THRESHOLDS.DAYS_WARNING
                         ? 'text-amber-600'
                         : 'text-surface-500'
                     }`}

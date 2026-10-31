@@ -19,13 +19,14 @@ import {
 } from 'lucide-react';
 import type { IdeaBoard as IdeaBoardType } from '@/types/event';
 import { formatCurrency } from '@/utils/calculations';
+import { UI_FEEDBACK_DURATION } from '@/utils/constants';
 
 /**
  * Props for IdeaBoard component.
  */
 export interface IdeaBoardProps {
   /** Complete creative ideas object including themes, palettes, menus, and decor */
-  ideas: IdeaBoardType;
+  readonly ideas: IdeaBoardType;
 }
 
 /**
@@ -33,6 +34,11 @@ export interface IdeaBoardProps {
  *
  * @param props - Component properties
  * @returns Concept board layout with copy-to-clipboard swatches
+ *
+ * @example
+ * ```tsx
+ * <IdeaBoard ideas={plan.ideas} />
+ * ```
  */
 const IdeaBoardComponent: React.FC<IdeaBoardProps> = ({ ideas }) => {
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
@@ -41,7 +47,7 @@ const IdeaBoardComponent: React.FC<IdeaBoardProps> = ({ ideas }) => {
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(hex);
       setCopiedColor(hex);
-      setTimeout(() => setCopiedColor(null), 2000);
+      setTimeout(() => setCopiedColor(null), UI_FEEDBACK_DURATION.CLIPBOARD_FEEDBACK_MS);
     }
   }, []);
 

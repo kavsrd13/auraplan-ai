@@ -11,6 +11,13 @@ import { MILESTONE_STATUS, VENDOR_STATUS } from '@/utils/constants';
 
 /**
  * Returns a pre-populated EventFormInput for a Rustic Garden Wedding.
+ *
+ * @returns Pre-configured EventFormInput structure
+ *
+ * @example
+ * ```ts
+ * const sampleInput = getDemoEventInput();
+ * ```
  */
 export function getDemoEventInput(): EventFormInput {
   return {
@@ -29,6 +36,13 @@ export function getDemoEventInput(): EventFormInput {
  * Returns a complete, rich EventPlan demo object with full budget breakdown,
  * chronological milestones, smart vendor items with vetting/negotiation tips,
  * and creative idea board with hex color palettes.
+ *
+ * @returns Complete demo EventPlan populated with realistic data
+ *
+ * @example
+ * ```ts
+ * const plan = getDemoPlan();
+ * ```
  */
 export function getDemoPlan(): EventPlan {
   const now = new Date().toISOString();
@@ -380,3 +394,5 @@ export function getDemoPlan(): EventPlan {
     },
   };
 }
+
+export default getDemoPlan;

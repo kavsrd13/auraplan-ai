@@ -15,13 +15,13 @@ import { Key, ShieldCheck, X, Eye, EyeOff, AlertCircle } from 'lucide-react';
  */
 export interface ApiKeyModalProps {
   /** Whether the modal dialog is visibly open */
-  isOpen: boolean;
+  readonly isOpen: boolean;
   /** Callback fired to close the modal dialog */
-  onClose: () => void;
+  readonly onClose: () => void;
   /** Current API key from state */
-  apiKey: string;
+  readonly apiKey: string;
   /** Callback invoked when the user saves a new API key */
-  onSaveKey: (key: string) => void;
+  readonly onSaveKey: (key: string) => void;
 }
 
 /**
@@ -29,6 +29,16 @@ export interface ApiKeyModalProps {
  *
  * @param props - Component properties
  * @returns Dialog overlay portal or null if closed
+ *
+ * @example
+ * ```tsx
+ * <ApiKeyModal
+ *   isOpen={isOpen}
+ *   onClose={handleClose}
+ *   apiKey={apiKey}
+ *   onSaveKey={handleSaveKey}
+ * />
+ * ```
  */
 const ApiKeyModalComponent: React.FC<ApiKeyModalProps> = ({
   isOpen,

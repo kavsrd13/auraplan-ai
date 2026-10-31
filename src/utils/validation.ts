@@ -10,8 +10,9 @@
 import {
   EventFormSchema,
   AIGeneratedPlanSchema,
+  type EventFormInput,
+  type AIGeneratedPlan,
 } from '@/types/event';
-import type { EventFormInput, AIGeneratedPlan } from '@/types/event';
 
 /**
  * Result of validating the event planning form input.

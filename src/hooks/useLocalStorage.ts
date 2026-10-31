@@ -201,3 +201,5 @@ export function clearPlansFromStorage(): void {
     console.warn('[clearPlansFromStorage] Failed to clear saved plans:', error);
   }
 }
+
+export default useLocalStorage;

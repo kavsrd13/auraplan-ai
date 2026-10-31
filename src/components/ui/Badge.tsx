@@ -23,13 +23,13 @@ export type BadgeSize = 'sm' | 'md';
  */
 export interface BadgeProps {
   /** Text or element rendered inside the badge */
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
   /** Color theme variant indicating severity or category */
-  variant?: BadgeVariant;
+  readonly variant?: BadgeVariant;
   /** Physical sizing scale of padding and text */
-  size?: BadgeSize;
+  readonly size?: BadgeSize;
   /** Optional extra Tailwind CSS classes */
-  className?: string;
+  readonly className?: string;
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
@@ -50,6 +50,11 @@ const sizeClasses: Record<BadgeSize, string> = {
  *
  * @param props - Component properties
  * @returns Stylized inline status pill
+ *
+ * @example
+ * ```tsx
+ * <Badge variant="success" size="sm">Completed</Badge>
+ * ```
  */
 const BadgeComponent: React.FC<BadgeProps> = ({
   children,

@@ -24,13 +24,13 @@ import { chatWithAI } from '@/services/aiService';
  */
 export interface AIChatPanelProps {
   /** Complete active event plan context provided to the LLM */
-  currentPlan: EventPlan;
+  readonly currentPlan: EventPlan;
   /** Gemini API key string or empty */
-  apiKey: string;
+  readonly apiKey: string;
   /** Array of conversational messages */
-  messages: ChatMessage[];
+  readonly messages: ChatMessage[];
   /** Handler to append a message to chat state */
-  onAddMessage: (msg: ChatMessage) => void;
+  readonly onAddMessage: (msg: ChatMessage) => void;
 }
 
 /**
@@ -38,6 +38,16 @@ export interface AIChatPanelProps {
  *
  * @param props - Component properties
  * @returns AI conversation landmark panel
+ *
+ * @example
+ * ```tsx
+ * <AIChatPanel
+ *   currentPlan={plan}
+ *   apiKey={apiKey}
+ *   messages={chatMessages}
+ *   onAddMessage={handleAddMessage}
+ * />
+ * ```
  */
 const AIChatPanelComponent: React.FC<AIChatPanelProps> = ({
   currentPlan,

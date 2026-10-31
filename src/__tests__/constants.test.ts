@@ -9,6 +9,11 @@ import {
   INPUT_LIMITS,
   AI_CONFIG,
   STANDARD_BUDGET_CATEGORIES,
+  TIME_CONSTANTS,
+  UI_FEEDBACK_DURATION,
+  TIMELINE_THRESHOLDS,
+  FORM_DEFAULTS,
+  EXPORT_CONFIG,
 } from '@/utils/constants';
 
 describe('constants definitions', () => {
@@ -66,5 +71,31 @@ describe('constants definitions', () => {
     expect(STANDARD_BUDGET_CATEGORIES).toHaveLength(5);
     expect(STANDARD_BUDGET_CATEGORIES).toContain('Venue & Rentals');
     expect(STANDARD_BUDGET_CATEGORIES).toContain('Catering & Bar');
+  });
+
+  it('defines valid TIME_CONSTANTS', () => {
+    expect(TIME_CONSTANTS.MS_PER_DAY).toBe(86400000);
+    expect(TIME_CONSTANTS.HOURS_PER_DAY).toBe(24);
+    expect(TIME_CONSTANTS.SECONDS_PER_MINUTE).toBe(60);
+  });
+
+  it('defines valid UI_FEEDBACK_DURATION', () => {
+    expect(UI_FEEDBACK_DURATION.CLIPBOARD_FEEDBACK_MS).toBe(2000);
+    expect(UI_FEEDBACK_DURATION.SAVE_FEEDBACK_MS).toBe(3000);
+  });
+
+  it('defines valid TIMELINE_THRESHOLDS', () => {
+    expect(TIMELINE_THRESHOLDS.DAYS_WARNING).toBe(7);
+  });
+
+  it('defines valid FORM_DEFAULTS', () => {
+    expect(FORM_DEFAULTS.EVENT_TYPE).toBe('wedding');
+    expect(FORM_DEFAULTS.GUEST_COUNT).toBe(100);
+    expect(FORM_DEFAULTS.TOTAL_BUDGET).toBe(25000);
+  });
+
+  it('defines valid EXPORT_CONFIG', () => {
+    expect(EXPORT_CONFIG.FILENAME_PREFIX).toBe('auraplan-');
+    expect(EXPORT_CONFIG.JSON_INDENT).toBe(2);
   });
 });

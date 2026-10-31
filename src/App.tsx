@@ -8,21 +8,27 @@
  */
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Layout } from './components/Layout';
-import { EventForm } from './components/EventForm';
-import { Dashboard } from './components/Dashboard';
-import { ApiKeyModal } from './components/ApiKeyModal';
-import { ErrorBoundary } from './components/ErrorBoundary';
-import { useEventPlan } from './hooks/useEventPlan';
-import { generateEventPlan } from './services/aiService';
-import { getDemoPlan } from './services/demoData';
-import type { EventFormInput, EventPlan } from './types/event';
+import {
+  Layout,
+  EventForm,
+  Dashboard,
+  ApiKeyModal,
+  ErrorBoundary,
+} from './components';
+import { useEventPlan } from './hooks';
+import { generateEventPlan, getDemoPlan } from './services';
+import type { EventFormInput, EventPlan } from './types';
 import { AlertCircle, X } from 'lucide-react';
 
 /**
  * Main application orchestrator for AuraPlan AI.
  *
  * @returns Master React application tree with layout landmarks and modal overlays
+ *
+ * @example
+ * ```tsx
+ * <App />
+ * ```
  */
 export const App: React.FC = () => {
   const {

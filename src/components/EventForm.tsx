@@ -22,19 +22,20 @@ import {
 } from 'lucide-react';
 import type { EventFormInput, EventType } from '@/types/event';
 import { useFormValidation, type PresetData } from '@/hooks/useFormValidation';
+import { INPUT_LIMITS } from '@/utils/constants';
 
 /**
  * Props for EventForm component.
  */
 export interface EventFormProps {
   /** Callback fired when user submits a valid event specification */
-  onSubmit: (input: EventFormInput) => void;
+  readonly onSubmit: (input: EventFormInput) => void;
   /** Callback to trigger loading pre-built demo celebration data */
-  onLoadDemo: () => void;
+  readonly onLoadDemo: () => void;
   /** Whether GenAI is currently processing in-flight generation */
-  isGenerating: boolean;
+  readonly isGenerating: boolean;
   /** Optional initial form values for pre-population */
-  initialValues?: Partial<EventFormInput>;
+  readonly initialValues?: Partial<EventFormInput>;
 }
 
 /**
@@ -42,6 +43,15 @@ export interface EventFormProps {
  *
  * @param props - Component properties
  * @returns Event creation form landmark section
+ *
+ * @example
+ * ```tsx
+ * <EventForm
+ *   onSubmit={handleGeneratePlan}
+ *   onLoadDemo={handleLoadDemo}
+ *   isGenerating={isGenerating}
+ * />
+ * ```
  */
 const EventFormComponent: React.FC<EventFormProps> = ({
   onSubmit,
@@ -192,7 +202,7 @@ const EventFormComponent: React.FC<EventFormProps> = ({
               Theme & Aesthetic Concept <span className="text-danger-500" aria-hidden="true">*</span>
             </label>
             <span className="text-xs text-surface-400">
-              {formData.theme.length}/500
+              {formData.theme.length}/{INPUT_LIMITS.THEME_MAX_LENGTH}
             </span>
           </div>
           <input
@@ -241,8 +251,8 @@ const EventFormComponent: React.FC<EventFormProps> = ({
                 id="guestCount"
                 name="guestCount"
                 type="number"
-                min="1"
-                max="50000"
+                min={INPUT_LIMITS.MIN_GUESTS}
+                max={INPUT_LIMITS.MAX_GUESTS}
                 required
                 aria-required="true"
                 aria-invalid={!!errors.guestCount}
@@ -279,8 +289,8 @@ const EventFormComponent: React.FC<EventFormProps> = ({
                 id="totalBudget"
                 name="totalBudget"
                 type="number"
-                min="100"
-                max="10000000"
+                min={INPUT_LIMITS.MIN_BUDGET}
+                max={INPUT_LIMITS.MAX_BUDGET}
                 step="100"
                 required
                 aria-required="true"
